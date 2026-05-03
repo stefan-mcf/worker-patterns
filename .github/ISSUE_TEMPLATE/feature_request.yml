@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest a new pattern, integration, or policy improvement
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or integration problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Safety boundary
+      description: Confirm whether this remains dry-run safe or requires an execution layer.
+    validations:
+      required: false

@@ -1,0 +1,125 @@
+# Large module-swarm fixture. Requested lanes are decomposition count,
+# not permission to launch all lanes concurrently.
+# This describes a large-scale refactor with fully disjoint scopes.
+cases:
+  - name: module_swarm_32_lane_disjoint_cheap
+    description: >
+      32 fully disjoint scopes (one module per directory, no shared files,
+      no cross-module coupling). Low merge-conflict risk. The policy should
+      split into waves with the default low-cost parallel profile lanes and an integrator after
+      all waves.
+    request:
+      objective: Refactor all monorepo modules to new internal API
+      scopes:
+        - module-01
+        - module-02
+        - module-03
+        - module-04
+        - module-05
+        - module-06
+        - module-07
+        - module-08
+        - module-09
+        - module-10
+        - module-11
+        - module-12
+        - module-13
+        - module-14
+        - module-15
+        - module-16
+        - module-17
+        - module-18
+        - module-19
+        - module-20
+        - module-21
+        - module-22
+        - module-23
+        - module-24
+        - module-25
+        - module-26
+        - module-27
+        - module-28
+        - module-29
+        - module-30
+        - module-31
+        - module-32
+      max_parallel_lanes: 8
+      risk_level: normal
+      review_required: true
+      tests_required: true
+      notes:
+        - "scopes are fully disjoint, each module has its own directory with no shared files"
+    expected_pattern: module-swarm
+    expected_overlays:
+      - twin-inspection
+    expected_mechanism: delegate_task
+    expected_profile: worker-code-fast
+    forbidden_profiles: [worker-code-premium, worker-general-premium, worker-review-premium, default]
+    expected_disable_reasoning: true
+    expected_scale:
+      requested_lane_count: 32
+      max_active_lanes: 8
+      waves_required: 4
+      wave_size: 8
+      profile_pool_strategy: low_cost_disjoint
+      integrator_per_wave: false
+
+  - name: module_swarm_32_lane_high_risk
+    description: >
+      32 lanes but with elevated merge-conflict risk (no explicit disjoint
+      guarantee, high risk). The policy should be more conservative: smaller
+      wave size, integrator after each wave.
+    request:
+      objective: Refactor shared core modules with cross-cutting concerns
+      scopes:
+        - module-01
+        - module-02
+        - module-03
+        - module-04
+        - module-05
+        - module-06
+        - module-07
+        - module-08
+        - module-09
+        - module-10
+        - module-11
+        - module-12
+        - module-13
+        - module-14
+        - module-15
+        - module-16
+        - module-17
+        - module-18
+        - module-19
+        - module-20
+        - module-21
+        - module-22
+        - module-23
+        - module-24
+        - module-25
+        - module-26
+        - module-27
+        - module-28
+        - module-29
+        - module-30
+        - module-31
+        - module-32
+      max_parallel_lanes: 8
+      risk_level: high
+      review_required: true
+      tests_required: true
+      notes: []
+    expected_pattern: module-swarm
+    expected_overlays:
+      - twin-inspection
+    expected_mechanism: delegate_task
+    expected_profile: worker-code-fast
+    forbidden_profiles: [worker-code-premium, worker-general-premium, worker-review-premium, default]
+    expected_disable_reasoning: true
+    expected_scale:
+      requested_lane_count: 32
+      max_active_lanes: 4
+      waves_required: 8
+      wave_size: 4
+      profile_pool_strategy: low_cost_conservative
+      integrator_per_wave: true

@@ -1,0 +1,102 @@
+cases:
+  - name: single_file_code_fix
+    request:
+      objective: "Small single one file code fix with tests"
+      scopes: ["code"]
+      tests_required: true
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["builder", "reviewer"]
+    safety_contains: "Hermes executes"
+  - name: parallel_module_work
+    request:
+      objective: "Refactor auth and billing modules in parallel with disjoint scopes"
+      scopes: ["auth", "billing"]
+      notes: ["disjoint scopes"]
+    expected_pattern: module-swarm
+    expected_mechanism: delegate_task
+    review_required: true
+    lane_roles: ["builder", "builder", "integrator", "reviewer"]
+    module_swarm_execution_roles: ["builder", "integrator", "reviewer"]
+    expected_profile: worker-code-fast
+    expected_fallback_profiles: []
+    forbidden_profiles: [worker-code-premium, worker-general-premium, worker-review-premium, default]
+    expected_disable_reasoning: true
+    safety_contains: "Hermes executes"
+  - name: high_risk_migration
+    request:
+      objective: "High risk migration with ordered dependency waves"
+      dependencies: ["schema", "code", "cutover"]
+      risk_level: high
+    expected_pattern: phased-assembly
+    expected_mechanism: kanban
+    review_required: true
+    lane_roles: ["phase-worker", "phase-worker", "phase-worker", "reviewer"]
+    safety_contains: "Safety-sensitive"
+  - name: documentation_only
+    request:
+      objective: "Small documentation-only README update"
+      scopes: ["docs"]
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["builder", "reviewer"]
+    safety_contains: "Hermes executes"
+  - name: test_writing
+    request:
+      objective: "Add regression tests for selector routing"
+      scopes: ["tests"]
+      tests_required: true
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["builder", "reviewer"]
+    safety_contains: "Hermes executes"
+  - name: browser_automation
+    request:
+      objective: "Plan browser automation for a website login smoke using Browser Harness"
+      notes: ["dry-run only, no credentials"]
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["builder", "reviewer"]
+    safety_contains: "Browser-capable route only"
+  - name: review_audit
+    request:
+      objective: "Security audit and review of routing policy"
+      scopes: ["policy"]
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["builder", "reviewer"]
+    safety_contains: "Safety-sensitive"
+  - name: blocked_security_sensitive
+    request:
+      objective: "Blocked credential-sensitive deployment repair"
+      recovery: true
+      risk_level: critical
+    expected_pattern: bridge_lane
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["recovery-worker", "reviewer"]
+    safety_contains: "Safety-sensitive"
+  - name: packaging_release
+    request:
+      objective: "Package release dry-run for PyPI distribution without publishing"
+      scopes: ["packaging"]
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: true
+    lane_roles: ["builder", "reviewer"]
+    safety_contains: "Packaging/release"
+  - name: dry_run_no_execute
+    request:
+      objective: "Dry-run no-execute route plan for worker profiles"
+      notes: ["no execute"]
+      no_review: true
+    expected_pattern: sequential
+    expected_mechanism: direct
+    review_required: false
+    lane_roles: ["builder"]
+    safety_contains: "Hermes executes"

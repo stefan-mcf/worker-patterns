@@ -1,0 +1,289 @@
+{
+    "hermes_mapping": {
+        "fallback_mechanisms": [
+            "swarm_profiles",
+            "goal"
+        ],
+        "invocation_hint": "Use delegate_task batch for bounded parallel lanes; preserve scope and role in each subagent context.",
+        "primary_mechanism": "delegate_task",
+        "prompt_contract": "Task objective: Refactor auth and billing modules, then run tests\nSelected worker pattern: module-swarm\nPrimary mechanism: delegate_task\nOverlays: twin-inspection\nMechanism hint: Use delegate_task batch for bounded parallel lanes; preserve scope and role in each subagent context.\nLanes:\nRole: builder\nScope: auth\nPurpose: parallel scoped implementation lane; execute in safe waves, not all at once\nAllowed edits: only files required for auth\nExpected output: concise lane summary plus proof artifacts\nRole: builder\nScope: billing\nPurpose: parallel scoped implementation lane; execute in safe waves, not all at once\nAllowed edits: only files required for billing\nExpected output: concise lane summary plus proof artifacts\nRole: integrator\nScope: auth, billing\nPurpose: merge/check lane outputs after all waves\nAllowed edits: only files required for auth, billing\nExpected output: concise lane summary plus proof artifacts\nRole: reviewer\nScope: auth, billing\nPurpose: independent review/test verification\nAllowed edits: only files required for auth, billing\nExpected output: concise lane summary plus proof artifacts\nDry-run only. Render Hermes-compatible prompts/specs but do not launch workers or mutate Hermes settings."
+    },
+    "lanes": [
+        {
+            "count": 1,
+            "fallback_profiles": [],
+            "hermes_hint": "wave-limited low_cost_conservative; max active builders 2",
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "purpose": "parallel scoped implementation lane; execute in safe waves, not all at once",
+            "role": "builder",
+            "scope": [
+                "auth"
+            ],
+            "selected_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills"
+            ]
+        },
+        {
+            "count": 1,
+            "fallback_profiles": [],
+            "hermes_hint": "wave-limited low_cost_conservative; max active builders 2",
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "purpose": "parallel scoped implementation lane; execute in safe waves, not all at once",
+            "role": "builder",
+            "scope": [
+                "billing"
+            ],
+            "selected_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills"
+            ]
+        },
+        {
+            "count": 1,
+            "fallback_profiles": [],
+            "hermes_hint": "main Hermes turn or /goal continuation",
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "purpose": "merge/check lane outputs after all waves",
+            "role": "integrator",
+            "scope": [
+                "auth",
+                "billing"
+            ],
+            "selected_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills",
+                "github",
+                "delegation"
+            ]
+        },
+        {
+            "count": 1,
+            "fallback_profiles": [],
+            "hermes_hint": "delegate_task reviewer or swarm review profile",
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "purpose": "independent review/test verification",
+            "role": "reviewer",
+            "scope": [
+                "auth",
+                "billing"
+            ],
+            "selected_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills",
+                "github"
+            ]
+        }
+    ],
+    "module_swarm_scale": {
+        "integrator_per_wave": false,
+        "max_active_lanes": 2,
+        "profile_pool_strategy": "low_cost_conservative",
+        "requested_lane_count": 2,
+        "wave_size": 2,
+        "waves_required": 1
+    },
+    "profile_mapping": {
+        "code-worker": "worker-code-fast",
+        "docs-worker": "worker-code-fast",
+        "integrator-worker": "worker-general-premium",
+        "planner-worker": "planner-premium",
+        "review-worker": "worker-review-premium",
+        "test-worker": "worker-code-fast"
+    },
+    "proof_expectations": [
+        "each lane has non-overlapping scope",
+        "integration pass checks conflicts",
+        "focused tests run after merge",
+        "independent reviewer/tester checks evidence",
+        "final answer includes review verdict",
+        "final summary names touched scopes: auth, billing"
+    ],
+    "request": {
+        "dependencies": [],
+        "durable": false,
+        "max_parallel_lanes": 4,
+        "notes": [],
+        "objective": "Refactor auth and billing modules, then run tests",
+        "persistent_workers": false,
+        "recovery": false,
+        "review_required": true,
+        "risk_level": "normal",
+        "scopes": [
+            "auth",
+            "billing"
+        ],
+        "tests_required": false,
+        "variants_requested": 0
+    },
+    "role_rules": {
+        "code-worker": {
+            "fallback_profiles": [
+                "worker-code-premium",
+                "worker-general-premium"
+            ],
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "preferred_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills"
+            ]
+        },
+        "docs-worker": {
+            "fallback_profiles": [
+                "worker-general-premium",
+                "default"
+            ],
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "preferred_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills"
+            ]
+        },
+        "integrator-worker": {
+            "fallback_profiles": [
+                "default"
+            ],
+            "model_policy": {
+                "disable_reasoning": false
+            },
+            "preferred_profile": "worker-general-premium",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills",
+                "github",
+                "delegation"
+            ]
+        },
+        "planner-worker": {
+            "fallback_profiles": [
+                "default"
+            ],
+            "model_policy": {
+                "disable_reasoning": false
+            },
+            "preferred_profile": "planner-premium",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills",
+                "delegation"
+            ]
+        },
+        "review-worker": {
+            "fallback_profiles": [
+                "worker-general-premium",
+                "default"
+            ],
+            "model_policy": {
+                "disable_reasoning": false
+            },
+            "preferred_profile": "worker-review-premium",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills",
+                "github"
+            ]
+        },
+        "test-worker": {
+            "fallback_profiles": [
+                "worker-general-premium",
+                "default"
+            ],
+            "model_policy": {
+                "disable_reasoning": true
+            },
+            "preferred_profile": "worker-code-fast",
+            "toolsets": [
+                "terminal",
+                "file",
+                "web",
+                "session_search",
+                "skills"
+            ]
+        }
+    },
+    "safety_notes": [
+        "Hermes executes; this package only selects/adapts worker patterns."
+    ],
+    "selection": {
+        "dimensions": {
+            "dependency_depth": 0,
+            "merge_conflict_risk": 1,
+            "module_separability": 3,
+            "uncertainty_of_solution": 0,
+            "verification_criticality": 3,
+            "workpiece_singularity": 0
+        },
+        "invalid_override_reason": "",
+        "matched_signals": [
+            "module",
+            "test"
+        ],
+        "overlays": [
+            "twin-inspection"
+        ],
+        "override": "",
+        "override_reason": "",
+        "override_requested_by": "",
+        "reason": "multiple scopes or module separability supports parallel lanes",
+        "score_adjustments": {
+            "module-swarm": 1,
+            "twin-inspection": 1
+        },
+        "scores": {
+            "blueprint-fanout": -2,
+            "bridge_lane": 7,
+            "module-swarm": 10,
+            "phased-assembly": 0,
+            "recovery-lane": 3,
+            "sequential": -1
+        },
+        "selected_pattern": "module-swarm",
+        "selection_source": "policy_scoring",
+        "selector_version": "2026-05-03-policy-port"
+    }
+}

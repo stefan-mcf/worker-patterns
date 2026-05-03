@@ -1,0 +1,53 @@
+# policies/worker_profiles.yaml
+roles:
+  planner-worker:
+    preferred_profile: planner-premium
+    fallback_profiles: [default]
+    model_policy:
+      disable_reasoning: false
+    toolsets: [terminal, file, web, session_search, skills, delegation]
+
+  code-worker:
+    preferred_profile: worker-code-fast
+    fallback_profiles: [worker-code-premium, worker-general-premium]
+    model_policy:
+      disable_reasoning: true # Low-cost parallel lanes should disable thinking/reasoning when possible
+    toolsets: [terminal, file, web, session_search, skills]
+
+  test-worker:
+    preferred_profile: worker-code-fast
+    fallback_profiles: [worker-general-premium, default]
+    model_policy:
+      disable_reasoning: true # Low-cost parallel lanes should disable thinking/reasoning when possible
+    toolsets: [terminal, file, web, session_search, skills]
+
+  review-worker:
+    preferred_profile: worker-review-premium # review-worker prefers premium review profiles
+    fallback_profiles: [worker-general-premium, default]
+    model_policy:
+      disable_reasoning: false
+    toolsets: [terminal, file, web, session_search, skills, github]
+
+  docs-worker:
+    preferred_profile: worker-code-fast
+    fallback_profiles: [worker-general-premium, default]
+    model_policy:
+      disable_reasoning: true # Low-cost parallel lanes should disable thinking/reasoning when possible
+    toolsets: [terminal, file, web, session_search, skills]
+
+  integrator-worker:
+    preferred_profile: worker-general-premium # premium escalation uses premium
+    fallback_profiles: [default]
+    model_policy:
+      disable_reasoning: false
+    toolsets: [terminal, file, web, session_search, skills, github, delegation]
+
+escalation_policy:
+  premium_escalation_profile: worker-general-premium
+  # Module-swarm execution lanes use the default low-cost parallel lane
+  # profile and fail closed without substituting unrelated profile families.
+  # Review profiles can still be modeled as separate external review routes.
+  module_swarm_default_profile: worker-code-fast
+  # Non-module-swarm code-heavy lanes may still use premium code.
+  code_heavy_profile: worker-code-premium
+  premium_code_cap: 3

@@ -1,0 +1,122 @@
+# Expected mappings from earlier worker-pattern policy into this Hermes-native
+# adapter. These are regression fixtures only: they must not launch workers,
+# mutate Hermes profile config, or recreate runtime queue lifecycle.
+source_archive: historical-internal-policy-redacted
+sources:
+  - policy/worker_execution_policy.yaml
+  - policy/development_worker_registry.yaml
+  - policy/worker_pattern_selection_policy.yaml
+  - policy/multi_agent_orchestration_patterns.yaml
+  - profiles/planner/README.md
+  - profiles/reviewer/README.md
+  - profiles/parallel-worker/README.md
+  - profiles/code-worker/README.md
+  - docs/worker-patterns/module-swarm.md
+  - docs/operator/worker-pattern-hardening.md
+
+role_profile_mappings:
+  planner-worker:
+    expected_profile: planner-premium
+    expected_fallback_profiles:
+      - default
+    disable_reasoning: false
+  code-worker:
+    expected_profile: worker-code-fast
+    expected_fallback_profiles:
+      - worker-code-premium
+      - worker-general-premium
+    disable_reasoning: true
+  test-worker:
+    expected_profile: worker-code-fast
+    expected_fallback_profiles:
+      - worker-general-premium
+      - default
+    disable_reasoning: true
+  docs-worker:
+    expected_profile: worker-code-fast
+    expected_fallback_profiles:
+      - worker-general-premium
+      - default
+    disable_reasoning: true
+  review-worker:
+    expected_profile: worker-review-premium
+    expected_fallback_profiles:
+      - worker-general-premium
+      - default
+    disable_reasoning: false
+  integrator-worker:
+    expected_profile: worker-general-premium
+    expected_fallback_profiles:
+      - default
+    disable_reasoning: false
+
+escalation_mappings:
+  premium_escalation_profile: worker-general-premium
+  module_swarm_default_profile: worker-code-fast
+  code_heavy_profile: worker-code-premium
+  premium_code_cap: 3
+
+pattern_mappings:
+  relay-line:
+    mapped_pattern: sequential
+    request:
+      objective: Bounded code patch moving through a relay line with review and tests.
+      scopes: [code]
+      notes:
+        - pattern:relay-line
+        - pattern_override_requested_by:legacy-policy-fixture
+        - pattern_override_reason:prove relay-line alias maps to sequential
+      review_required: true
+      tests_required: true
+    expected_builder_profile: worker-code-premium
+    expected_overlay: twin-inspection
+  module-swarm:
+    mapped_pattern: module-swarm
+    request:
+      objective: Split independent docs modules across disjoint scopes with no shared files.
+      scopes: [docs-a, docs-b, docs-c, docs-d]
+      notes:
+        - pattern:module-swarm
+        - disjoint scopes; no shared files
+      max_parallel_lanes: 4
+      review_required: true
+      tests_required: true
+    expected_builder_profile: worker-code-fast
+    expected_scale_strategy: low_cost_disjoint
+    expected_max_active_lanes: 4
+    expected_overlay: twin-inspection
+  phased-assembly:
+    mapped_pattern: phased-assembly
+    request:
+      objective: Implement a code migration in dependency-ordered waves.
+      scopes: [code]
+      dependencies: [schema-phase, adapter-phase]
+      notes:
+        - pattern:phased-assembly
+      review_required: true
+      tests_required: true
+    expected_phase_worker_profile: worker-code-premium
+    expected_overlay: twin-inspection
+  blueprint-fanout:
+    mapped_pattern: blueprint-fanout
+    request:
+      objective: Compare alternatives and choose one design variant.
+      variants_requested: 2
+      notes:
+        - pattern:blueprint-fanout
+      review_required: true
+    expected_variant_profile: planner-premium
+    expected_curator_profile: worker-review-premium
+  bridge_lane:
+    mapped_pattern: bridge_lane
+    request:
+      objective: Critical canonical landing repair with explicit operator review.
+      scopes: [docs]
+      risk_level: critical
+      recovery: true
+      notes:
+        - pattern:bridge-lane
+      review_required: true
+      tests_required: true
+    expected_recovery_profile: worker-general-premium
+    expected_overlay: twin-inspection

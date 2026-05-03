@@ -1,0 +1,192 @@
+version: 1
+selector_version: 2026-05-03-policy-port
+principles:
+  prefer_simpler_pattern_when_scores_are_close: true
+  close_score_margin: 2
+  simpler_pattern_order:
+    - sequential
+    - phased-assembly
+    - module-swarm
+    - blueprint-fanout
+    - recovery-lane
+    - bridge_lane
+selector_metadata_fields:
+  - selection_source
+  - override
+  - override_requested_by
+  - override_reason
+  - dimensions
+  - scores
+  - keyword_matches
+  - score_adjustments
+  - selector_version
+overrides:
+  explicit_note_override_prefix: "pattern:"
+  requested_by_prefix: "pattern_override_requested_by:"
+  reason_prefix: "pattern_override_reason:"
+  aliases:
+    relay-line: sequential
+    bridge-lane: bridge_lane
+bounded_keyword_hints:
+  score_cap: 2
+  patterns:
+    blueprint-fanout:
+      - variant
+      - compare
+      - alternative
+      - alternatives
+      - choose
+      - curate
+      - prototype
+      - design options
+    phased-assembly:
+      - phase
+      - wave
+      - migration
+      - prerequisite
+      - dependency
+      - ordered
+      - unlock
+    module-swarm:
+      - module
+      - component
+      - parallel
+      - disjoint
+      - split
+      - fan out
+      - multiple files
+    recovery-lane:
+      - recover
+      - resume
+      - blocked
+      - stale
+      - repair
+      - failed
+      - fix regression
+    bridge_lane:
+      - canonical
+      - critical
+      - landing
+      - quarantine
+      - high risk
+      - hotfix
+    twin-inspection:
+      - review
+      - verify
+      - test
+      - security
+      - regression
+      - audit
+      - proof
+    sequential:
+      - small
+      - simple
+      - single
+      - one file
+      - narrow
+dimensions:
+  uncertainty_of_solution:
+    description: How much exploration or variant generation is needed.
+    scale: 0_to_3
+  dependency_depth:
+    description: How much the work depends on explicit ordered prerequisites.
+    scale: 0_to_3
+  module_separability:
+    description: How well the work can be split into disjoint file/module boundaries.
+    scale: 0_to_3
+  workpiece_singularity:
+    description: Whether there is really one bounded workpiece moving through a pipeline.
+    scale: 0_to_3
+  verification_criticality:
+    description: How risky it is to accept output without explicit review or test verification.
+    scale: 0_to_3
+  merge_conflict_risk:
+    description: Risk that parallel lanes will collide in shared files or ambiguous ownership.
+    scale: 0_to_3
+patterns:
+  sequential:
+    aliases:
+      - relay-line
+    description: Single workpiece moving builder -> review -> test.
+    score_formula:
+      positive:
+        workpiece_singularity: 3
+        verification_criticality: 1
+      negative:
+        uncertainty_of_solution: 2
+        dependency_depth: 1
+        module_separability: 1
+        merge_conflict_risk: 1
+  module-swarm:
+    description: Parallel decomposition into bounded modules with integration and verification.
+    score_formula:
+      positive:
+        module_separability: 3
+        verification_criticality: 1
+      negative:
+        merge_conflict_risk: 3
+        dependency_depth: 1
+  phased-assembly:
+    description: Ordered waves with explicit unlock criteria.
+    score_formula:
+      positive:
+        dependency_depth: 3
+        verification_criticality: 1
+      negative:
+        uncertainty_of_solution: 1
+        module_separability: 1
+  blueprint-fanout:
+    description: Comparative parallel variants followed by curation.
+    score_formula:
+      positive:
+        uncertainty_of_solution: 3
+      negative:
+        merge_conflict_risk: 2
+        dependency_depth: 2
+        workpiece_singularity: 1
+  twin-inspection:
+    description: Builder plus independent review/test verification overlay.
+    overlay_only: true
+  recovery-lane:
+    description: Narrow repair or resume path after failure or stale work.
+    score_formula:
+      positive:
+        workpiece_singularity: 2
+        verification_criticality: 1
+      negative:
+        uncertainty_of_solution: 1
+        dependency_depth: 1
+  bridge_lane:
+    description: Critical controlled canonical landing path.
+    score_formula:
+      positive:
+        verification_criticality: 2
+        merge_conflict_risk: 1
+      negative:
+        uncertainty_of_solution: 1
+        workpiece_singularity: 1
+proof_expectations:
+  sequential:
+    - final summary states what changed
+    - run focused checks when code changed
+  module-swarm:
+    - each lane has non-overlapping scope
+    - integration pass checks conflicts
+    - focused tests run after merge
+  blueprint-fanout:
+    - variants are compared explicitly
+    - curator states selected approach and rejected trade-offs
+  phased-assembly:
+    - each wave lists unlocked dependencies
+    - do not start downstream wave before prerequisites pass
+  twin-inspection:
+    - independent reviewer/tester checks evidence
+    - final answer includes review verdict
+  recovery-lane:
+    - state original failure
+    - prove narrow repair
+    - avoid expanding scope
+  bridge_lane:
+    - state critical risk
+    - perform minimal canonical landing
+    - require human or explicit final acceptance for irreversible actions
