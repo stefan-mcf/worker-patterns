@@ -8,7 +8,7 @@ cases:
     expected_mechanism: direct
     review_required: true
     lane_roles: ["builder", "reviewer"]
-    safety_contains: "Hermes executes"
+    safety_contains: "Runtimes execute"
   - name: parallel_module_work
     request:
       objective: "Refactor auth and billing modules in parallel with disjoint scopes"
@@ -23,7 +23,7 @@ cases:
     expected_fallback_profiles: []
     forbidden_profiles: [worker-code-premium, worker-general-premium, worker-review-premium, default]
     expected_disable_reasoning: true
-    safety_contains: "Hermes executes"
+    safety_contains: "Runtimes execute"
   - name: high_risk_migration
     request:
       objective: "High risk migration with ordered dependency waves"
@@ -42,7 +42,7 @@ cases:
     expected_mechanism: direct
     review_required: true
     lane_roles: ["builder", "reviewer"]
-    safety_contains: "Hermes executes"
+    safety_contains: "Runtimes execute"
   - name: test_writing
     request:
       objective: "Add regression tests for selector routing"
@@ -52,7 +52,7 @@ cases:
     expected_mechanism: direct
     review_required: true
     lane_roles: ["builder", "reviewer"]
-    safety_contains: "Hermes executes"
+    safety_contains: "Runtimes execute"
   - name: browser_automation
     request:
       objective: "Plan browser automation for a website login smoke using Browser Harness"
@@ -99,4 +99,4 @@ cases:
     expected_mechanism: direct
     review_required: false
     lane_roles: ["builder"]
-    safety_contains: "Hermes executes"
+    safety_contains: "Runtimes execute"

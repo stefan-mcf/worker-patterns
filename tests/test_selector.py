@@ -3,14 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
-
-from hermes_worker_patterns import (
+from worker_patterns import (
     ExecutionMechanism,
     PatternRequest,
     WorkerPattern,
     select_worker_pattern,
 )
-from hermes_worker_patterns.policy import SELECTOR_VERSION
+from worker_patterns.policy import SELECTOR_VERSION
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "pattern_cases.yaml"
 FIXTURES = yaml.safe_load(FIXTURE_PATH.read_text())["cases"]
@@ -46,7 +45,7 @@ def test_fixture_cases_cover_base_patterns_and_overlay():
         plan = select_worker_pattern(_request_from_fixture(case["request"]))
         assert plan.selection.selected_pattern == _pattern(case["expected_pattern"])
         assert plan.selection.overlays == tuple(_pattern(item) for item in case["expected_overlays"])
-        assert plan.hermes_mapping.primary_mechanism == _mechanism(case["expected_mechanism"])
+        assert plan.runtime_mapping.primary_mechanism == _mechanism(case["expected_mechanism"])
 
 
 def test_explicit_pattern_override_is_validated_and_applied():

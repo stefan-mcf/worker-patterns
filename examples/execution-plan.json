@@ -1,53 +1,53 @@
 {
-    "commands": [],
-    "delegate_tasks": [],
-    "dry_run": true,
-    "kanban_tasks": [],
-    "lanes": [
-        {
-            "count": 1,
-            "fallback_profiles": [
-                "worker-code-premium",
-                "worker-general-premium"
-            ],
-            "hermes_hint": "direct Hermes turn or /goal",
-            "purpose": "single bounded implementation lane",
-            "role": "builder",
-            "scope": [],
-            "selected_profile": "worker-code-fast",
-            "toolsets": [
-                "terminal",
-                "file",
-                "web",
-                "session_search",
-                "skills"
-            ]
-        },
-        {
-            "count": 1,
-            "fallback_profiles": [
-                "worker-general-premium",
-                "default"
-            ],
-            "hermes_hint": "delegate_task reviewer or swarm review profile",
-            "purpose": "independent review/test verification",
-            "role": "reviewer",
-            "scope": [],
-            "selected_profile": "worker-review-premium",
-            "toolsets": [
-                "terminal",
-                "file",
-                "web",
-                "session_search",
-                "skills",
-                "github"
-            ]
-        }
-    ],
-    "mechanism": "direct",
-    "safety_notes": [
-        "Hermes executes; this package only selects/adapts worker patterns.",
-        "Dry-run only: this execution plan renders commands and task specs but does not execute them.",
-        "Reserved --execute flag fails closed until explicit execution support is approved."
-    ]
+  "commands": [],
+  "delegate_tasks": [],
+  "dry_run": true,
+  "kanban_tasks": [],
+  "lanes": [
+    {
+      "count": 1,
+      "fallback_profiles": [
+        "worker-code-premium",
+        "worker-general-premium"
+      ],
+      "purpose": "single bounded implementation lane",
+      "role": "builder",
+      "runtime_hint": "direct runtime turn or goal-style continuation",
+      "scope": [],
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills"
+      ]
+    },
+    {
+      "count": 1,
+      "fallback_profiles": [
+        "worker-general-premium",
+        "default"
+      ],
+      "purpose": "independent review/test verification",
+      "role": "reviewer",
+      "runtime_hint": "delegate_task reviewer or swarm review profile",
+      "scope": [],
+      "selected_profile": "worker-review-premium",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills",
+        "github"
+      ]
+    }
+  ],
+  "mechanism": "direct",
+  "safety_notes": [
+    "Runtimes execute; this package only selects/adapts worker patterns.",
+    "Dry-run only: this execution plan renders commands and task specs but does not execute them.",
+    "Reserved --execute flag fails closed until explicit execution support is approved."
+  ]
 }

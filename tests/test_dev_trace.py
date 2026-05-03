@@ -1,11 +1,10 @@
 import json
 
 import pytest
-
-from hermes_worker_patterns.cli import main as cli_main
-from hermes_worker_patterns.hermes_tool import worker_pattern_tool
-from hermes_worker_patterns.mcp_server import render_execution_plan_bridge
-from hermes_worker_patterns.trace import emit_trace, plan_trace_fields, tracing_enabled
+from worker_patterns.cli import main as cli_main
+from worker_patterns.mcp_server import render_execution_plan_bridge
+from worker_patterns.runtime_tool import worker_pattern_tool
+from worker_patterns.trace import emit_trace, plan_trace_fields, tracing_enabled
 
 
 def _read_jsonl(path):
@@ -55,7 +54,7 @@ def test_dev_tracing_writes_bounded_jsonl_selection_event(monkeypatch, tmp_path)
     assert event["kind"] == "worker_pattern_selection"
     assert event["selected_pattern"] == result["plan"]["selection"]["selected_pattern"]
     assert event["selection_source"] == result["plan"]["selection"]["selection_source"]
-    assert event["primary_mechanism"] == result["plan"]["hermes_mapping"]["primary_mechanism"]
+    assert event["primary_mechanism"] == result["plan"]["runtime_mapping"]["primary_mechanism"]
     assert event["lane_count"] == len(result["plan"]["lanes"])
     assert event["lane_profiles"]
     assert event["objective_hash"]

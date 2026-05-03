@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from hermes_worker_patterns.mcp_server import main, tool_names
+from worker_patterns.mcp_server import main, tool_names
 
 
 def _rpc(method, params=None, request_id=1, extra_env=None):
@@ -13,7 +13,7 @@ def _rpc(method, params=None, request_id=1, extra_env=None):
     if extra_env:
         env.update(extra_env)
     proc = subprocess.run(
-        [sys.executable, "-m", "hermes_worker_patterns.mcp_server"],
+        [sys.executable, "-m", "worker_patterns.mcp_server"],
         input=json.dumps({"jsonrpc": "2.0", "id": request_id, "method": method, "params": params or {}}) + "\n",
         text=True,
         capture_output=True,

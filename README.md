@@ -1,45 +1,48 @@
-# Hermes Worker Patterns
+# Worker Patterns
 
-Hermes Worker Patterns is a compact taxonomy and selector for deciding **how agent work should be shaped** before execution starts.
+Worker Patterns is a small, runtime-agnostic planning layer for deciding **what shape agent work should take** before any worker is launched.
 
-Given a task, it classifies the work into a worker pattern such as `sequential`, `module-swarm`, `blueprint-fanout`, `phased-assembly`, `twin-inspection`, `recovery-lane`, or `bridge_lane`. Each pattern describes the lane structure, review expectations, and safety boundaries for that kind of work.
+Agent systems often have plenty of execution machinery: model-backed profiles, subagents, queues, tools, MCP servers, browser workers, schedulers, or long-running profile processes. Those pieces answer *who can run the work*. Worker Patterns answers the earlier question: *how should the work be structured so execution is reviewable, recoverable, and not ad hoc?*
 
-The package is intentionally conservative. It selects patterns and renders dry-run plans; it does **not** launch workers, mutate Hermes configuration, use credentials, push branches, publish packages, or decide that work is complete.
+Given a task, the selector classifies the work into a pattern such as `sequential`, `module-swarm`, `blueprint-fanout`, `phased-assembly`, `twin-inspection`, `recovery-lane`, or `bridge_lane`. Each pattern describes the lane structure, review expectations, coordination boundaries, and safety checks for that kind of work.
+
+The package is intentionally conservative. It selects patterns and renders dry-run plans; it does **not** launch workers, mutate runtime configuration, use credentials, push branches, publish packages, or decide that work is complete.
 
 ## Why worker patterns?
 
-Hermes already provides the execution substrate: model-backed profiles, tools, and ways to run work. What is still needed is a clear layer for deciding the **shape of the work** before choosing the workers.
+Most agent runtimes make it easy to send work to a capable model or worker. That is useful, but it can make orchestration collapse into ad hoc routing: pick a strong profile, send a prompt, and hope the worker infers whether the task needs decomposition, independent review, recovery, or ordered phases.
 
-Without worker patterns, worker selection can collapse into ad hoc routing: pick a capable profile, send a prompt, then rely on the worker to infer whether the task needs decomposition, review, recovery, or ordered phases. That works for simple requests, but it becomes brittle when work spans multiple files, needs independent review, has dependencies, or is recovering from a failed attempt.
+That breaks down when work spans multiple modules, has dependencies, needs parallel exploration, requires proof, or is continuing from a failed attempt. The shape of the work should be explicit before execution starts.
 
-Worker patterns add a planning contract in front of execution:
+Worker Patterns adds a planning contract in front of runtime execution:
 
 - classify the task shape before assigning lanes;
-- make decomposition explicit instead of implicit in a prompt;
+- make decomposition explicit instead of burying it inside a prompt;
 - separate builder, reviewer, curator, recovery, and bridge responsibilities;
+- define when work should be sequential, parallel, phased, inspected, or recovered;
 - preserve safety boundaries for high-risk or stale work;
 - produce stable JSON that other tools can inspect before running anything;
-- keep profile/model policy configurable without hard-coding it into every prompt.
+- keep runtime/profile/model policy configurable instead of hard-coded into each prompt.
 
-In short: Hermes workers decide *what to do inside a lane*. Worker patterns decide *which lanes should exist, why they exist, and how they should be checked*.
+In short: workers decide *what to do inside a lane*. Worker patterns decide *which lanes should exist, why they exist, and how they should be checked*.
 
 ## Features
 
 - Worker-pattern selection for common agent work shapes.
-- Stable JSON output for CLI and tool consumption.
+- Runtime-neutral JSON output for CLI, MCP, and adapter consumption.
 - Prompt and execution-plan rendering from selected patterns.
 - Optional stdio MCP bridge with two tools:
   - `select_worker_pattern`
   - `render_execution_plan`
 - Policy-driven profile/lane hints via YAML.
 - Opt-in JSONL tracing with common secret redaction.
-- Local smoke scripts that avoid writing to a real Hermes home.
+- Local smoke scripts that avoid writing to a real runtime home.
 
 ## Install from a fresh clone
 
 ```bash
-git clone https://github.com/stefan-mcf/hermes-worker-patterns.git
-cd hermes-worker-patterns
+git clone https://github.com/stefan-mcf/worker-patterns.git
+cd worker-patterns
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install -U pip
@@ -83,7 +86,7 @@ worker-pattern-mcp
 From a source checkout, this equivalent also works:
 
 ```bash
-python -m hermes_worker_patterns.mcp_server
+python -m worker_patterns.mcp_server
 ```
 
 The MCP bridge writes protocol messages to stdout and keeps debug traces out of stdout. A local temp-home proof is available:
@@ -104,19 +107,31 @@ scripts/smoke_hermes_temp_home_mcp.sh
 
 See [`docs/worker-patterns.md`](docs/worker-patterns.md) for selection criteria and examples.
 
+## Runtime adapters
+
+Worker Patterns is not an agent runtime. It emits an inspectable contract that other systems can consume:
+
+- a CLI can print JSON for shell automation;
+- an MCP server can expose pattern selection as a tool;
+- a queue or task board can translate lanes into durable work items;
+- a profile-based runtime can map lanes to named workers;
+- Hermes Agent can consume the same plan through the optional Hermes adapter.
+
+Hermes support is intentionally treated as an adapter, not the product boundary. See [`docs/runtime-adapters.md`](docs/runtime-adapters.md) for the generic adapter contract and [`docs/hermes-integration.md`](docs/hermes-integration.md) for the optional Hermes-specific notes.
+
 ## Safety boundary
 
-This repository is an adapter layer, not an agent runtime. It does not:
+This repository is a planning and adapter layer, not an execution system. It does not:
 
 - launch workers;
 - own queues or schedulers;
-- mutate global Hermes config or profile config;
+- mutate global runtime or profile configuration;
 - create tasks in external planning systems;
 - execute browser actions;
 - use credentials;
 - publish packages, push branches, or open pull requests.
 
-Execution remains the responsibility of Hermes and the human-approved workflow that consumes these dry-run plans.
+Execution remains the responsibility of the runtime and the human-approved workflow that consumes these dry-run plans.
 
 ## Documentation
 
@@ -124,7 +139,8 @@ Execution remains the responsibility of Hermes and the human-approved workflow t
 - [`docs/worker-patterns.md`](docs/worker-patterns.md): pattern taxonomy and routing rules.
 - [`docs/cli.md`](docs/cli.md): command reference and output modes.
 - [`docs/mcp.md`](docs/mcp.md): stdio MCP bridge.
-- [`docs/hermes-integration.md`](docs/hermes-integration.md): consuming plans in Hermes.
+- [`docs/runtime-adapters.md`](docs/runtime-adapters.md): generic adapter contract.
+- [`docs/hermes-integration.md`](docs/hermes-integration.md): optional Hermes integration notes.
 - [`docs/configuration.md`](docs/configuration.md): policy files, profile hints, tracing.
 - [`docs/browser-routing.md`](docs/browser-routing.md): browser-capable route boundary.
 - [`docs/dev-logging.md`](docs/dev-logging.md): opt-in trace logging.
@@ -143,6 +159,10 @@ scripts/smoke_hermes_temp_home_mcp.sh
 ```
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for contributor workflow and release checks.
+
+## Compatibility
+
+The canonical Python import path is now `worker_patterns`. A thin `hermes_worker_patterns` compatibility shim remains for existing integrations during the initial rebrand window.
 
 ## Maturity
 

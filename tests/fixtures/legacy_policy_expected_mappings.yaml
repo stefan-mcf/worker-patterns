@@ -1,6 +1,6 @@
-# Expected mappings from earlier worker-pattern policy into this Hermes-native
+# Expected mappings from earlier worker-pattern policy into this runtime-native
 # adapter. These are regression fixtures only: they must not launch workers,
-# mutate Hermes profile config, or recreate runtime queue lifecycle.
+# mutate runtime profile config, or recreate runtime queue lifecycle.
 source_archive: historical-internal-policy-redacted
 sources:
   - policy/worker_execution_policy.yaml

@@ -6,13 +6,13 @@ Configuration is policy-driven and file-backed.
 
 `policies/pattern_rules.yaml` controls pattern descriptions, scoring hints, proof expectations, and override metadata.
 
-A packaged copy is stored at `src/hermes_worker_patterns/policies/pattern_rules.yaml` so installed builds work outside a source checkout.
+A packaged copy is stored at `src/worker_patterns/policies/pattern_rules.yaml` so installed builds work outside a source checkout.
 
 ## Worker profile policy
 
 `policies/worker_profiles.yaml` maps logical roles to profile hints and model-policy expectations.
 
-A packaged copy is stored at `src/hermes_worker_patterns/policies/worker_profiles.yaml`.
+A packaged copy is stored at `src/worker_patterns/policies/worker_profiles.yaml`.
 
 ## Optional swarm roster
 

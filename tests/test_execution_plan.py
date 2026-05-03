@@ -1,12 +1,11 @@
 import json
 
 import pytest
-
-from hermes_worker_patterns.adapter import dry_run_execution_plan
-from hermes_worker_patterns.cli import main
-from hermes_worker_patterns.execution_plan import render_execution_plan
-from hermes_worker_patterns.schemas import PatternRequest
-from hermes_worker_patterns.selector import select_worker_pattern
+from worker_patterns.adapter import dry_run_execution_plan
+from worker_patterns.cli import main
+from worker_patterns.execution_plan import render_execution_plan
+from worker_patterns.schemas import PatternRequest
+from worker_patterns.selector import select_worker_pattern
 
 
 def test_execution_plan_renders_delegate_task_specs_without_commands():
@@ -69,7 +68,7 @@ workers:
     assert "swarm1" not in command_profiles
     assert "swarm5" in command_profiles
     assert "swarm6" in command_profiles
-    assert any("canonical swarm roster" in lane["hermes_hint"] for lane in rendered.lanes)
+    assert any("canonical swarm roster" in lane["runtime_hint"] for lane in rendered.lanes)
     for command in rendered.commands:
         assert isinstance(command, tuple)
         assert command[:5] == ("hermes", "--profile", command[2], "chat", "-Q")
@@ -101,7 +100,7 @@ def test_adapter_exposes_dry_run_execution_plan_entrypoint():
     rendered = dry_run_execution_plan(plan)
 
     assert rendered.dry_run is True
-    assert rendered.mechanism == plan.hermes_mapping.primary_mechanism.value
+    assert rendered.mechanism == plan.runtime_mapping.primary_mechanism.value
 
 
 def test_cli_render_execution_plan_json(capsys):

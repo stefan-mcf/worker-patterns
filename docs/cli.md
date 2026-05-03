@@ -41,7 +41,7 @@ worker-pattern render-prompts "Refactor parser and renderer" --scope parser --sc
 
 ## `render-execution-plan`
 
-Render dry-run Hermes execution-plan commands.
+Render dry-run runtime execution-plan commands.
 
 ```bash
 worker-pattern render-execution-plan \

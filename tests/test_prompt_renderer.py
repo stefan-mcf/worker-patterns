@@ -1,14 +1,14 @@
 import json
 
-from hermes_worker_patterns.prompt_renderer import (
+from worker_patterns.prompt_renderer import (
     render_delegate_specs,
     render_kanban_spec,
     render_prompt_bundle,
     render_prompt_contract,
     render_swarm_spec,
 )
-from hermes_worker_patterns.schemas import PatternRequest
-from hermes_worker_patterns.selector import select_worker_pattern
+from worker_patterns.schemas import PatternRequest
+from worker_patterns.selector import select_worker_pattern
 
 
 def test_render_prompt_bundle_contains_role_scope_and_proof():

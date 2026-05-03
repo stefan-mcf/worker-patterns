@@ -1,9 +1,8 @@
 from pathlib import Path
 
 import pytest
-
-from hermes_worker_patterns.profile_policy import WorkerProfilesPolicy
-from hermes_worker_patterns.schemas import PatternLane
+from worker_patterns.profile_policy import WorkerProfilesPolicy
+from worker_patterns.schemas import PatternLane
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_POLICY = ROOT / "policies" / "worker_profiles.yaml"

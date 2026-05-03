@@ -1,12 +1,12 @@
 # Contributing
 
-Thanks for considering a contribution to Hermes Worker Patterns.
+Thanks for considering a contribution to Worker Patterns.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/stefan-mcf/hermes-worker-patterns.git
-cd hermes-worker-patterns
+git clone https://github.com/stefan-mcf/worker-patterns.git
+cd worker-patterns
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install -U pip
@@ -34,7 +34,7 @@ python -m twine check dist/*
 ## Pull request expectations
 
 - Keep the package dry-run safe by default.
-- Do not add code that mutates global Hermes configuration as a side effect of selection.
+- Do not add code that mutates global runtime configuration as a side effect of selection.
 - Add or update tests for behavior changes.
 - Keep CLI and docs synchronized.
 - Avoid environment-specific paths, credentials, or private local assumptions.
@@ -42,7 +42,7 @@ python -m twine check dist/*
 
 ## Policy changes
 
-Policy files live in `policies/` for source-tree readability and are mirrored into package data under `src/hermes_worker_patterns/policies/` for installed use. If a policy file changes, update both copies and run the install smoke checks.
+Policy files live in `policies/` for source-tree readability and are mirrored into package data under `src/worker_patterns/policies/` for installed use. If a policy file changes, update both copies and run the install smoke checks.
 
 ## Release checklist
 

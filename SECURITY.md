@@ -10,12 +10,12 @@ Please report suspected vulnerabilities through GitHub Security Advisories if en
 
 ## Design boundary
 
-Hermes Worker Patterns is designed to be dry-run safe:
+Worker Patterns is designed to be dry-run safe:
 
 - it selects worker patterns;
 - it renders prompts and execution plans;
 - it does not launch workers;
-- it does not mutate Hermes configuration;
+- it does not mutate runtime configuration;
 - it does not create external tasks;
 - it does not use website credentials or execute browser actions;
 - it does not push branches, publish packages, or open pull requests.

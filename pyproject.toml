@@ -3,14 +3,14 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hermes-worker-patterns"
+name = "worker-patterns"
 version = "0.1.0"
-description = "Dry-run worker-pattern selector and execution-plan adapter for Hermes Agent."
+description = "Dry-run worker-pattern selector and runtime-plan adapter for agentic systems."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Stefan McFeeters" }]
 license = "MIT"
-keywords = ["hermes-agent", "mcp", "cli", "agents", "workflow", "automation"]
+keywords = ["mcp", "cli", "agents", "workflow", "automation"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -26,14 +26,14 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/stefan-mcf/hermes-worker-patterns"
-Repository = "https://github.com/stefan-mcf/hermes-worker-patterns"
-Issues = "https://github.com/stefan-mcf/hermes-worker-patterns/issues"
-Documentation = "https://github.com/stefan-mcf/hermes-worker-patterns/tree/main/docs"
+Homepage = "https://github.com/stefan-mcf/worker-patterns"
+Repository = "https://github.com/stefan-mcf/worker-patterns"
+Issues = "https://github.com/stefan-mcf/worker-patterns/issues"
+Documentation = "https://github.com/stefan-mcf/worker-patterns/tree/main/docs"
 
 [project.scripts]
-worker-pattern = "hermes_worker_patterns.cli:main"
-worker-pattern-mcp = "hermes_worker_patterns.mcp_server:main"
+worker-pattern = "worker_patterns.cli:main"
+worker-pattern-mcp = "worker_patterns.mcp_server:main"
 
 [project.optional-dependencies]
 dev = [
@@ -48,6 +48,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
+worker_patterns = ["policies/*.yaml"]
 hermes_worker_patterns = ["policies/*.yaml"]
 
 [tool.pytest.ini_options]

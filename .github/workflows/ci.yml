@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, public-release-2026-05-03]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
         run: python -m pytest
       - name: Install smoke
         run: scripts/smoke_install.sh
-      - name: Hermes temp-home MCP smoke
+      - name: Optional Hermes temp-home MCP smoke
         run: scripts/smoke_hermes_temp_home_mcp.sh
       - name: Build package
         run: |

@@ -2,11 +2,10 @@ from pathlib import Path
 
 import pytest
 import yaml
-
-from hermes_worker_patterns.execution_plan import render_execution_plan
-from hermes_worker_patterns.hermes_tool import worker_pattern_tool
-from hermes_worker_patterns.schemas import PatternRequest
-from hermes_worker_patterns.selector import select_worker_pattern
+from worker_patterns.execution_plan import render_execution_plan
+from worker_patterns.runtime_tool import worker_pattern_tool
+from worker_patterns.schemas import PatternRequest
+from worker_patterns.selector import select_worker_pattern
 
 FIXTURE = Path("tests/fixtures/golden_routing_cases.yaml")
 
@@ -37,7 +36,7 @@ def test_golden_routing_case(case):
     tool_output = worker_pattern_tool({**case["request"], "output": "execution_plan"})
 
     assert plan.selection.selected_pattern.value == case["expected_pattern"]
-    assert plan.hermes_mapping.primary_mechanism.value == case["expected_mechanism"]
+    assert plan.runtime_mapping.primary_mechanism.value == case["expected_mechanism"]
     assert execution["mechanism"] == case["expected_mechanism"]
     assert plan.request.review_required is case["review_required"]
     assert [lane.role for lane in plan.lanes] == case["lane_roles"]

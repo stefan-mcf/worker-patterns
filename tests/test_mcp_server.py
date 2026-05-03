@@ -1,8 +1,7 @@
 import json
 
 import pytest
-
-from hermes_worker_patterns.mcp_server import (
+from worker_patterns.mcp_server import (
     render_execution_plan_bridge,
     select_worker_pattern_bridge,
 )

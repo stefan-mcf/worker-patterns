@@ -1,8 +1,7 @@
 import json
 
 import pytest
-
-from hermes_worker_patterns.cli import main
+from worker_patterns.cli import main
 
 
 def test_cli_select_json(capsys):
@@ -22,7 +21,7 @@ def test_cli_select_json(capsys):
     out = capsys.readouterr().out
     data = json.loads(out)
     assert data["selection"]["selected_pattern"] == "module-swarm"
-    assert data["hermes_mapping"]["primary_mechanism"] == "delegate_task"
+    assert data["runtime_mapping"]["primary_mechanism"] == "delegate_task"
 
 
 

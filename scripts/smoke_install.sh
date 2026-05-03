@@ -30,8 +30,8 @@ response = json.loads(proc.stdout.splitlines()[0])
 assert {tool["name"] for tool in response["result"]["tools"]} == {"select_worker_pattern", "render_execution_plan"}
 PY
 "$TMPDIR/venv/bin/python" - <<'PY'
-from hermes_worker_patterns import PatternRequest, select_worker_pattern
-from hermes_worker_patterns.mcp_server import render_execution_plan_bridge, select_worker_pattern_bridge, tool_names
+from worker_patterns import PatternRequest, select_worker_pattern
+from worker_patterns.mcp_server import render_execution_plan_bridge, select_worker_pattern_bridge, tool_names
 
 plan = select_worker_pattern(PatternRequest(objective="small docs update"))
 assert plan.selection.selected_pattern.value == "sequential"

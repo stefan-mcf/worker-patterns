@@ -1,8 +1,7 @@
 import json
 
 import pytest
-
-from hermes_worker_patterns.hermes_tool import worker_pattern_tool, worker_pattern_tool_json
+from worker_patterns.runtime_tool import worker_pattern_tool, worker_pattern_tool_json
 
 
 def test_worker_pattern_tool_accepts_json_string_and_returns_execution_plan():

@@ -1,6 +1,6 @@
 # Browser Routing Boundary
 
-Hermes Worker Patterns may detect when a task looks browser-related and recommend a browser-capable route. It does not include a browser automation runtime.
+Worker Patterns may detect when a task looks browser-related and recommend a browser-capable route. It does not include a browser automation runtime.
 
 ## In scope
 

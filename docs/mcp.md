@@ -1,6 +1,6 @@
 # MCP Bridge
 
-Hermes Worker Patterns includes a stdio MCP executable:
+Worker Patterns includes a stdio MCP executable:
 
 ```bash
 worker-pattern-mcp
@@ -9,7 +9,7 @@ worker-pattern-mcp
 It can also be run from source:
 
 ```bash
-python -m hermes_worker_patterns.mcp_server
+python -m worker_patterns.mcp_server
 ```
 
 ## Tools
@@ -24,7 +24,7 @@ Output is a serialized worker-pattern plan.
 
 Inputs mirror selection plus rendering options.
 
-Output is a dry-run execution plan that a caller can inspect before choosing whether to run any Hermes command.
+Output is a dry-run execution plan that a caller can inspect before choosing whether to run any runtime command.
 
 ## Protocol boundary
 
@@ -38,4 +38,4 @@ Run:
 scripts/smoke_hermes_temp_home_mcp.sh
 ```
 
-The script uses a temporary `HERMES_HOME` and verifies the bridge without mutating a real Hermes home.
+The script uses a temporary `HERMES_HOME` and verifies the bridge without mutating a real runtime home.

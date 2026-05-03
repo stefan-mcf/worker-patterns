@@ -3,7 +3,7 @@
 This repository includes an optional Hermes skill source at:
 
 ```text
-skills/hermes-worker-patterns/SKILL.md
+skills/worker-patterns/SKILL.md
 ```
 
 Install it only if you want a Hermes profile to remember the worker-pattern selector workflow.
@@ -13,8 +13,8 @@ Install it only if you want a Hermes profile to remember the worker-pattern sele
 Copy the skill into the target Hermes profile's skills directory, for example:
 
 ```bash
-mkdir -p ~/.hermes/skills/hermes-worker-patterns
-cp skills/hermes-worker-patterns/SKILL.md ~/.hermes/skills/hermes-worker-patterns/SKILL.md
+mkdir -p ~/.hermes/skills/worker-patterns
+cp skills/worker-patterns/SKILL.md ~/.hermes/skills/worker-patterns/SKILL.md
 ```
 
 If your Hermes profile stores skills elsewhere, use that profile's configured skill directory.
@@ -28,4 +28,4 @@ worker-pattern select "small docs update" --text
 
 ## Boundary
 
-The skill should call the selector and interpret dry-run outputs. It should not install global profiles, mutate Hermes config, launch workers as a side effect of selection, or create durable tasks without explicit operator intent.
+The skill should call the selector and interpret dry-run outputs. It should not install global profiles, mutate runtime config, launch workers as a side effect of selection, or create durable tasks without explicit operator intent.

@@ -1,6 +1,6 @@
 # Developer Logging
 
-Hermes Worker Patterns has opt-in JSONL tracing for debugging selector behavior.
+Worker Patterns has opt-in JSONL tracing for debugging selector behavior.
 
 ## Enable tracing
 

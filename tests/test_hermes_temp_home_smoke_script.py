@@ -9,7 +9,7 @@ def test_temp_hermes_home_smoke_script_contract():
     assert "set -euo pipefail" in text
     assert "mktemp -d" in text
     assert 'HERMES_HOME="$TMPDIR/hermes-home"' in text
-    assert "hermes_worker_patterns.mcp_server" in text
+    assert "worker_patterns.mcp_server" in text
     assert "tools/list" in text
     assert "SKIPPED: hermes CLI not available" in text
     forbidden_home = "/".join(["", "Users", "stefan", ".hermes"])

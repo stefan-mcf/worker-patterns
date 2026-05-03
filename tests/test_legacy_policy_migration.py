@@ -1,10 +1,9 @@
 from pathlib import Path
 
 import yaml
-
-from hermes_worker_patterns.profile_policy import WorkerProfilesPolicy
-from hermes_worker_patterns.schemas import PatternRequest, WorkerPattern
-from hermes_worker_patterns.selector import select_worker_pattern
+from worker_patterns.profile_policy import WorkerProfilesPolicy
+from worker_patterns.schemas import PatternRequest, WorkerPattern
+from worker_patterns.selector import select_worker_pattern
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests" / "fixtures" / "legacy_policy_expected_mappings.yaml"

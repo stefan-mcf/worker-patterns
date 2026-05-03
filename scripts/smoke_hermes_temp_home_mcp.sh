@@ -19,7 +19,7 @@ import sys
 
 request = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
 proc = subprocess.run(
-    [sys.executable, "-m", "hermes_worker_patterns.mcp_server"],
+    [sys.executable, "-m", "worker_patterns.mcp_server"],
     input=json.dumps(request) + "\n",
     text=True,
     capture_output=True,

@@ -11,7 +11,7 @@ Named persistent profiles are useful for long-running work, but a named profile 
 - Worker pattern: selected execution shape.
 - Worker lane: role/scope in that shape.
 - Worker profile template: model/tool policy used to instantiate lanes.
-- Live profile: a concrete Hermes profile identity.
+- Live profile: a concrete runtime profile identity.
 
 The selector can render lane specs that a separate approved execution layer may consume. The selector itself must not create profiles, mutate config, or launch workers.
 
@@ -32,4 +32,4 @@ The selector can render lane specs that a separate approved execution layer may 
 - fail closed when capacity is unavailable;
 - keep review independent from implementation;
 - make all generated commands dry-run inspectable;
-- never mutate global Hermes configuration as a side effect of selection.
+- never mutate global runtime configuration as a side effect of selection.

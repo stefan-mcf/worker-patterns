@@ -1,6 +1,6 @@
 # Worker Patterns
 
-Worker patterns describe execution shape. They do not execute work; they tell Hermes or a caller how work should be organized.
+Worker patterns describe the shape of agent work. They do not execute work; they tell a caller how work should be organized before the caller chooses workers, models, tools, or task systems.
 
 ## Pattern taxonomy
 
@@ -8,7 +8,7 @@ Worker patterns describe execution shape. They do not execute work; they tell He
 
 Use for small, bounded work with one clear scope and low coordination cost.
 
-Typical mapping: current Hermes turn, optionally promoted to `/goal` if it spans turns.
+Typical mapping: one current-session lane, optionally promoted to a multi-step continuation if it spans turns.
 
 ### `module-swarm`
 
@@ -26,7 +26,7 @@ Typical mapping: variant lanes plus curator lane.
 
 Use for dependency-ordered work where one phase must land before the next.
 
-Typical mapping: `/goal` or a durable task graph.
+Typical mapping: ordered phases or a durable task graph.
 
 ### `twin-inspection`
 
@@ -74,4 +74,4 @@ The selector should prefer a decomposed pattern because the scopes are independe
 
 ## Boundary
 
-The output is advisory and dry-run safe. It may include Hermes command previews, but it does not run them.
+The output is advisory and dry-run safe. It may include command previews or runtime hints, but it does not run them.

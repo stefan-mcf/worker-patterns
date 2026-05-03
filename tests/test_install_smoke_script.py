@@ -12,6 +12,6 @@ def test_install_smoke_script_contract():
     assert "pip install -e" in text
     assert 'worker-pattern" select' in text
     assert 'worker-pattern" render' in text
-    assert "hermes_worker_patterns" in text
+    assert "worker_patterns" in text
     forbidden_home = "/".join(["", "Users", "stefan", ".hermes"])
     assert forbidden_home not in text
