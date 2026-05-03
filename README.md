@@ -98,7 +98,7 @@ scripts/smoke_hermes_temp_home_mcp.sh
 ## Supported patterns
 
 - `sequential`: one bounded lane for small/simple work.
-- `module-swarm`: disjoint scopes that can be decomposed into parallel lanes.
+- `module-swarm`: disjoint scopes that can be decomposed into many independent lanes, including large decompositions such as 32 module lanes, then executed in bounded waves with integration/review gates.
 - `blueprint-fanout`: competing designs or approaches, followed by curation.
 - `phased-assembly`: ordered dependency waves for migrations/refactors.
 - `twin-inspection`: implementation plus independent review/test verification.
