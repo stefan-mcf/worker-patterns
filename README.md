@@ -6,6 +6,23 @@ Given a task, it classifies the work into a worker pattern such as `sequential`,
 
 The package is intentionally conservative. It selects patterns and renders dry-run plans; it does **not** launch workers, mutate Hermes configuration, use credentials, push branches, publish packages, or decide that work is complete.
 
+## Why worker patterns?
+
+Hermes already provides the execution substrate: model-backed profiles, tools, and ways to run work. What is still needed is a clear layer for deciding the **shape of the work** before choosing the workers.
+
+Without worker patterns, worker selection can collapse into ad hoc routing: pick a capable profile, send a prompt, then rely on the worker to infer whether the task needs decomposition, review, recovery, or ordered phases. That works for simple requests, but it becomes brittle when work spans multiple files, needs independent review, has dependencies, or is recovering from a failed attempt.
+
+Worker patterns add a planning contract in front of execution:
+
+- classify the task shape before assigning lanes;
+- make decomposition explicit instead of implicit in a prompt;
+- separate builder, reviewer, curator, recovery, and bridge responsibilities;
+- preserve safety boundaries for high-risk or stale work;
+- produce stable JSON that other tools can inspect before running anything;
+- keep profile/model policy configurable without hard-coding it into every prompt.
+
+In short: Hermes workers decide *what to do inside a lane*. Worker patterns decide *which lanes should exist, why they exist, and how they should be checked*.
+
 ## Features
 
 - Worker-pattern selection for common agent work shapes.
