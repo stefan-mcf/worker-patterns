@@ -1,14 +1,16 @@
 # Hermes Worker Patterns
 
-Hermes Worker Patterns is a dry-run selector and execution-plan adapter for [Hermes Agent](https://hermes-agent.nousresearch.com/). It answers a practical routing question: given a task, should Hermes handle it directly, continue it with `/goal`, split it into bounded subagents, route it to persistent swarm profiles, or model it as a durable Kanban-style dependency graph?
+Hermes Worker Patterns is a compact taxonomy and selector for deciding **how agent work should be shaped** before execution starts.
 
-The package is intentionally conservative. It selects and renders plans; it does **not** launch workers, mutate Hermes configuration, create Kanban tasks, use credentials, push branches, publish packages, or decide that work is complete.
+Given a task, it classifies the work into a worker pattern such as `sequential`, `module-swarm`, `blueprint-fanout`, `phased-assembly`, `twin-inspection`, `recovery-lane`, or `bridge_lane`. Each pattern describes the lane structure, review expectations, and safety boundaries for that kind of work.
+
+The package is intentionally conservative. It selects patterns and renders dry-run plans; it does **not** launch workers, mutate Hermes configuration, use credentials, push branches, publish packages, or decide that work is complete.
 
 ## Features
 
-- Worker-pattern selection for common agent execution shapes.
+- Worker-pattern selection for common agent work shapes.
 - Stable JSON output for CLI and tool consumption.
-- Prompt and execution-plan rendering for Hermes primitives.
+- Prompt and execution-plan rendering from selected patterns.
 - Optional stdio MCP bridge with two tools:
   - `select_worker_pattern`
   - `render_execution_plan`
@@ -92,7 +94,7 @@ This repository is an adapter layer, not an agent runtime. It does not:
 - launch workers;
 - own queues or schedulers;
 - mutate global Hermes config or profile config;
-- create Kanban tasks;
+- create tasks in external planning systems;
 - execute browser actions;
 - use credentials;
 - publish packages, push branches, or open pull requests.
