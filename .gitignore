@@ -12,3 +12,21 @@ build/
 .env
 .env.*
 .hermes/
+
+# Local/private operator policy overlays. The public policy files in
+# policies/ and src/*/policies/ must stay runtime-agnostic; keep actual
+# profile names, model names, credentials, and machine-specific rosters here.
+policies/*.local.yaml
+policies/*.private.yaml
+policies/*personal*.yaml
+policies/*secret*.yaml
+src/worker_patterns/policies/*.local.yaml
+src/worker_patterns/policies/*.private.yaml
+src/worker_patterns/policies/*personal*.yaml
+src/worker_patterns/policies/*secret*.yaml
+src/hermes_worker_patterns/policies/*.local.yaml
+src/hermes_worker_patterns/policies/*.private.yaml
+src/hermes_worker_patterns/policies/*personal*.yaml
+src/hermes_worker_patterns/policies/*secret*.yaml
+swarm.yaml
+*.swarm.yaml
