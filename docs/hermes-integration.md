@@ -4,6 +4,12 @@ Hermes is now documented as one optional runtime adapter for Worker Patterns, no
 
 Use this page only if you want Hermes Agent to consume Worker Patterns plans through the CLI, MCP bridge, or optional skill.
 
+## Compatibility window
+
+The canonical Python package is `worker_patterns`. The older `hermes_worker_patterns` import path is kept as a temporary 0.1.x migration shim for existing integrations only. Public integrations should migrate to `worker_patterns` before the next breaking release.
+
+While the shim remains, policy data is duplicated under both package names so installed compatibility imports keep working. Release checks must confirm those packaged policy files are synchronized; when the migration window closes, remove the shim package data and compatibility tests together.
+
 ## Integration modes
 
 1. CLI: call `worker-pattern select` or `worker-pattern render-execution-plan` and paste/use the output as context.

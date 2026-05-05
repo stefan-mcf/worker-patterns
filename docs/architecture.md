@@ -61,4 +61,4 @@ Source-readable policy lives in `policies/`. The same YAML files are packaged un
 
 ## Compatibility
 
-The canonical module is `worker_patterns`. The `hermes_worker_patterns` module remains as a thin compatibility shim during the rebrand window. New integrations should use `worker_patterns`.
+The canonical module is `worker_patterns`. The `hermes_worker_patterns` module remains as a temporary 0.1.x compatibility shim for existing integrations only. New integrations should use `worker_patterns`; release checks keep duplicated packaged policies synchronized until the shim is removed.

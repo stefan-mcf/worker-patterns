@@ -40,6 +40,10 @@ In short: workers decide *what to do inside a lane*. Worker patterns decide *whi
 
 ## Install from a fresh clone
 
+Worker Patterns requires Python 3.10, 3.11, or 3.12. If `python --version`
+reports an older interpreter, replace `python` below with `python3.10`,
+`python3.11`, `python3.12`, or create the environment with `uv venv --python 3.11 .venv`.
+
 ```bash
 git clone https://github.com/stefan-mcf/worker-patterns.git
 cd worker-patterns
@@ -162,7 +166,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for contributor workflow and release ch
 
 ## Compatibility
 
-The canonical Python import path is now `worker_patterns`. A thin `hermes_worker_patterns` compatibility shim remains for existing integrations during the initial rebrand window.
+The canonical Python import path is `worker_patterns`. A thin `hermes_worker_patterns` compatibility shim remains for existing integrations during the 0.1.x migration window only; new integrations should use `worker_patterns`.
 
 ## Maturity
 

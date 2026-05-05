@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The project is in initial public alpha. Security fixes target the default branch and the latest tagged release.
+Security fixes target the default branch and the latest tagged release. The 0.1.x line supports the documented CLI, MCP, and runtime-adapter surfaces on Python 3.10-3.12.
 
 ## Reporting a vulnerability
 
