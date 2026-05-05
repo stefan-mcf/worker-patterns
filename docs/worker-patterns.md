@@ -14,7 +14,7 @@ Typical mapping: one current-session lane, optionally promoted to a multi-step c
 
 Use when work can be split by disjoint scopes such as independent packages, modules, services, or documentation sections.
 
-This is the same core concept that existed under Antaeus: a module-swarm is a **decomposition contract** for many independent lanes, not just a small parallel-task shortcut. A request with 32 independent modules can produce 32 builder lanes while still limiting how many lanes are active at once.
+This pattern is a **decomposition contract** for many independent lanes, not just a small parallel-task shortcut. A request with 32 independent modules can produce 32 builder lanes while still limiting how many lanes are active at once.
 
 Typical mapping: bounded parallel lanes or persistent profiles, followed by integration/review.
 

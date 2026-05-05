@@ -5,10 +5,10 @@ from typing import Any
 
 from .execution_plan import render_execution_plan
 from .prompt_renderer import (
-    render_delegate_specs,
-    render_kanban_spec,
+    render_ephemeral_worker_specs,
+    render_persistent_worker_spec,
     render_prompt_bundle,
-    render_swarm_spec,
+    render_task_graph_spec,
 )
 from .schemas import PatternRequest
 from .selector import select_worker_pattern
@@ -27,9 +27,12 @@ _ALLOWED_OUTPUTS = {
     "select",
     "execution_plan",
     "prompt_bundle",
-    "delegate",
-    "swarm",
-    "kanban",
+    "ephemeral_workers",
+    "delegate",  # deprecated alias
+    "persistent_workers",
+    "swarm",  # deprecated alias
+    "task_graph",
+    "kanban",  # deprecated alias
 }
 
 
@@ -39,12 +42,7 @@ def worker_pattern_tool(
     trace_interface: str = "python_api",
     trace_event: str = "select_worker_pattern",
 ) -> dict[str, Any]:
-    """Tool-compatible pure Python entrypoint for worker-pattern selection.
-
-    Accepts a JSON object as a string/bytes payload or an already-decoded dict.
-    Returns JSON-serializable plan output and never shells out, spawns workers,
-    creates Kanban tasks, or mutates runtime config.
-    """
+    """Tool-compatible pure Python entrypoint for worker-pattern selection."""
 
     request_id = new_request_id()
     started_ms = monotonic_ms()
@@ -86,15 +84,11 @@ def worker_pattern_tool(
 
 
 def worker_pattern_tool_json(args: JsonArgs) -> str:
-    """Return the tool output as a JSON string for tool hosts that expect text."""
-
     return json.dumps(worker_pattern_tool(args), indent=2, sort_keys=True)
 
 
 def _json_safe(payload: dict[str, Any]) -> dict[str, Any]:
-    return json.loads(
-        json.dumps(payload, default=lambda obj: getattr(obj, "value", str(obj)))
-    )
+    return json.loads(json.dumps(payload, default=lambda obj: getattr(obj, "value", str(obj))))
 
 
 def _load_args(args: JsonArgs) -> dict[str, Any]:
@@ -114,13 +108,10 @@ def _request_from_payload(payload: dict[str, Any]) -> PatternRequest:
     review_required = bool(payload.get("review_required", True))
     if bool(payload.get("no_review", False)):
         review_required = False
-
     return PatternRequest(
         objective=objective,
         scopes=_tuple_of_strings(payload.get("scopes", payload.get("scope", ()))),
-        dependencies=_tuple_of_strings(
-            payload.get("dependencies", payload.get("dependency", ()))
-        ),
+        dependencies=_tuple_of_strings(payload.get("dependencies", payload.get("dependency", ()))),
         risk_level=str(payload.get("risk_level", payload.get("risk", "normal"))),
         review_required=review_required,
         tests_required=bool(payload.get("tests_required", False)),
@@ -143,11 +134,7 @@ def _tuple_of_strings(value: Any) -> tuple[str, ...]:
 
 def _render_tool_output(plan, output: str) -> dict[str, Any]:
     if output == "select":
-        return {
-            "dry_run": True,
-            "kind": "worker_pattern_selection",
-            "plan": plan.to_dict(),
-        }
+        return {"dry_run": True, "kind": "worker_pattern_selection", "plan": plan.to_dict()}
     if output == "execution_plan":
         return {
             "dry_run": True,
@@ -156,27 +143,31 @@ def _render_tool_output(plan, output: str) -> dict[str, Any]:
             "execution_plan": render_execution_plan(plan).to_dict(),
         }
     if output == "prompt_bundle":
-        return {
+        return {"dry_run": True, "kind": "worker_pattern_prompt_bundle", "prompt_bundle": render_prompt_bundle(plan)}
+    if output in {"ephemeral_workers", "delegate"}:
+        spec = render_ephemeral_worker_specs(plan)
+        result = {
             "dry_run": True,
-            "kind": "worker_pattern_prompt_bundle",
-            "prompt_bundle": render_prompt_bundle(plan),
+            "kind": "worker_pattern_ephemeral_worker_spec",
+            "ephemeral_workers": spec,
         }
-    if output == "delegate":
-        return {
+        if output == "delegate":
+            result["delegate"] = spec
+        return result
+    if output in {"persistent_workers", "swarm"}:
+        spec = render_persistent_worker_spec(plan)
+        result = {
             "dry_run": True,
-            "kind": "worker_pattern_delegate_spec",
-            "delegate": render_delegate_specs(plan),
+            "kind": "worker_pattern_persistent_worker_spec",
+            "persistent_workers": spec,
         }
-    if output == "swarm":
-        return {
-            "dry_run": True,
-            "kind": "worker_pattern_swarm_spec",
-            "swarm": render_swarm_spec(plan),
-        }
-    if output == "kanban":
-        return {
-            "dry_run": True,
-            "kind": "worker_pattern_kanban_spec",
-            "kanban": render_kanban_spec(plan),
-        }
+        if output == "swarm":
+            result["swarm"] = spec
+        return result
+    if output in {"task_graph", "kanban"}:
+        spec = render_task_graph_spec(plan)
+        result = {"dry_run": True, "kind": "worker_pattern_task_graph_spec", "task_graph": spec}
+        if output == "kanban":
+            result["kanban"] = spec
+        return result
     raise AssertionError(f"unsupported output: {output}")

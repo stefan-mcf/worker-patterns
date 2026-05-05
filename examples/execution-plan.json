@@ -1,19 +1,77 @@
 {
   "commands": [],
-  "delegate_tasks": [],
   "dry_run": true,
-  "kanban_tasks": [],
+  "ephemeral_worker_tasks": [
+    {
+      "context": "Scope: auth. Allowed edits: Only files required for scope: auth. Purpose: parallel scoped implementation lane; execute in safe waves, not all at once. Proof expectations: each lane has non-overlapping scope; integration pass checks conflicts; focused tests run after merge; independent reviewer/tester checks evidence; final answer includes review verdict; test command/output or explicit reason tests were not run; final summary names touched scopes: auth, billing. Dry-run adapter contract only; do not launch external workers or mutate runtime configuration.",
+      "fallback_profiles": [],
+      "goal": "Act as the builder lane for objective: Refactor auth and billing modules, then run tests. Selected worker pattern: module-swarm. Deliver changed files, implementation summary, and validation evidence.",
+      "role": "builder",
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills"
+      ]
+    },
+    {
+      "context": "Scope: billing. Allowed edits: Only files required for scope: billing. Purpose: parallel scoped implementation lane; execute in safe waves, not all at once. Proof expectations: each lane has non-overlapping scope; integration pass checks conflicts; focused tests run after merge; independent reviewer/tester checks evidence; final answer includes review verdict; test command/output or explicit reason tests were not run; final summary names touched scopes: auth, billing. Dry-run adapter contract only; do not launch external workers or mutate runtime configuration.",
+      "fallback_profiles": [],
+      "goal": "Act as the builder lane for objective: Refactor auth and billing modules, then run tests. Selected worker pattern: module-swarm. Deliver changed files, implementation summary, and validation evidence.",
+      "role": "builder",
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills"
+      ]
+    },
+    {
+      "context": "Scope: auth, billing. Allowed edits: Only files required for scope: auth, billing. Purpose: merge/check lane outputs after all waves. Proof expectations: each lane has non-overlapping scope; integration pass checks conflicts; focused tests run after merge; independent reviewer/tester checks evidence; final answer includes review verdict; test command/output or explicit reason tests were not run; final summary names touched scopes: auth, billing; integration summary names merged scopes and unresolved risks. Dry-run adapter contract only; do not launch external workers or mutate runtime configuration.",
+      "fallback_profiles": [],
+      "goal": "Act as the integrator lane for objective: Refactor auth and billing modules, then run tests. Selected worker pattern: module-swarm. Deliver merged outcome summary, touched scopes, and integration risks.",
+      "role": "integrator",
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills",
+        "github",
+        "delegation"
+      ]
+    },
+    {
+      "context": "Scope: auth, billing. Allowed edits: Only files required for scope: auth, billing. Purpose: independent review/test verification. Proof expectations: each lane has non-overlapping scope; integration pass checks conflicts; focused tests run after merge; independent reviewer/tester checks evidence; final answer includes review verdict; test command/output or explicit reason tests were not run; final summary names touched scopes: auth, billing; independent verdict with explicit regressions or none. Dry-run adapter contract only; do not launch external workers or mutate runtime configuration.",
+      "fallback_profiles": [],
+      "goal": "Act as the reviewer lane for objective: Refactor auth and billing modules, then run tests. Selected worker pattern: module-swarm. Deliver independent review verdict, regressions found, and proof check.",
+      "role": "reviewer",
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills",
+        "github"
+      ]
+    }
+  ],
   "lanes": [
     {
       "count": 1,
-      "fallback_profiles": [
-        "worker-code-premium",
-        "worker-general-premium"
-      ],
-      "purpose": "single bounded implementation lane",
+      "fallback_profiles": [],
+      "purpose": "parallel scoped implementation lane; execute in safe waves, not all at once",
       "role": "builder",
-      "runtime_hint": "direct runtime turn or goal-style continuation",
-      "scope": [],
+      "runtime_hint": "wave-limited low_cost_conservative; max active builders 2",
+      "scope": [
+        "auth"
+      ],
       "selected_profile": "worker-code-fast",
       "toolsets": [
         "terminal",
@@ -25,15 +83,54 @@
     },
     {
       "count": 1,
-      "fallback_profiles": [
-        "worker-general-premium",
-        "default"
+      "fallback_profiles": [],
+      "purpose": "parallel scoped implementation lane; execute in safe waves, not all at once",
+      "role": "builder",
+      "runtime_hint": "wave-limited low_cost_conservative; max active builders 2",
+      "scope": [
+        "billing"
       ],
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills"
+      ]
+    },
+    {
+      "count": 1,
+      "fallback_profiles": [],
+      "purpose": "merge/check lane outputs after all waves",
+      "role": "integrator",
+      "runtime_hint": "current-session lane or managed continuation",
+      "scope": [
+        "auth",
+        "billing"
+      ],
+      "selected_profile": "worker-code-fast",
+      "toolsets": [
+        "terminal",
+        "file",
+        "web",
+        "session_search",
+        "skills",
+        "github",
+        "delegation"
+      ]
+    },
+    {
+      "count": 1,
+      "fallback_profiles": [],
       "purpose": "independent review/test verification",
       "role": "reviewer",
-      "runtime_hint": "delegate_task reviewer or swarm review profile",
-      "scope": [],
-      "selected_profile": "worker-review-premium",
+      "runtime_hint": "ephemeral reviewer or independent review worker",
+      "scope": [
+        "auth",
+        "billing"
+      ],
+      "selected_profile": "worker-code-fast",
       "toolsets": [
         "terminal",
         "file",
@@ -44,10 +141,14 @@
       ]
     }
   ],
-  "mechanism": "direct",
+  "mechanism": "ephemeral_workers",
   "safety_notes": [
     "Runtimes execute; this package only selects/adapts worker patterns.",
-    "Dry-run only: this execution plan renders commands and task specs but does not execute them.",
-    "Reserved --execute flag fails closed until explicit execution support is approved."
-  ]
+    "Dry-run only: this execution plan renders worker and task specs but does not execute them.",
+    "Reserved --execute flag fails closed until explicit execution support is approved.",
+    "Module-swarm execution lanes are logical decomposition lanes; runtime adapters decide how to map them.",
+    "Module-swarm scale policy: 2 requested lanes as decomposition count, 2 max active lanes, 1 waves."
+  ],
+  "task_graph_tasks": [],
+  "worker_specs": []
 }

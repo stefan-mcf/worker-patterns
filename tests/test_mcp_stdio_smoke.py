@@ -9,7 +9,7 @@ from worker_patterns.mcp_server import main, tool_names
 def _rpc(method, params=None, request_id=1, extra_env=None):
     env = os.environ.copy()
     env["PYTHONPATH"] = "src" + os.pathsep + env.get("PYTHONPATH", "")
-    env["HERMES_WORKER_PATTERNS_FORCE_STDIO_FALLBACK"] = "1"
+    env["WORKER_PATTERNS_FORCE_STDIO_FALLBACK"] = "1"
     if extra_env:
         env.update(extra_env)
     proc = subprocess.run(
@@ -52,7 +52,7 @@ def test_mcp_stdout_remains_protocol_clean_with_trace_env(tmp_path):
     response = _rpc(
         "tools/call",
         {"name": "render_execution_plan", "arguments": {"objective": "small docs update"}},
-        extra_env={"HERMES_WORKER_PATTERNS_LOG": str(trace_path)},
+        extra_env={"WORKER_PATTERNS_LOG": str(trace_path)},
     )
     assert response["result"]["isError"] is False
     content = response["result"]["content"][0]

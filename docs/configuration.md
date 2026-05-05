@@ -14,36 +14,47 @@ A packaged copy is stored at `src/worker_patterns/policies/pattern_rules.yaml` s
 
 A packaged copy is stored at `src/worker_patterns/policies/worker_profiles.yaml`.
 
-## Optional swarm roster
+## Optional worker roster
 
-Set `HERMES_SWARM_ROSTER_PATH` to map logical lanes to a concrete Hermes swarm roster:
+Set `WORKER_PATTERNS_ROSTER_PATH` to map logical lanes to caller-owned worker identities:
 
 ```bash
-export HERMES_SWARM_ROSTER_PATH=/path/to/swarm.yaml
+export WORKER_PATTERNS_ROSTER_PATH=/path/to/workers.yaml
 ```
 
 The roster is optional. Without it, outputs remain generic and portable.
 
-## Temporarily skipped profiles
+A minimal roster looks like:
 
-Callers can quarantine profiles for one run with:
-
-```bash
-export HERMES_SWARM_UNHEALTHY_PROFILES=swarm6,swarm11
+```yaml
+workers:
+  - id: worker-code-fast
+    role: builder
+    preferredTaskTypes: [implementation, feature]
+    acceptsBroadcast: true
+  - id: worker-review
+    role: reviewer
+    preferredTaskTypes: [review, qa, verification]
+    acceptsBroadcast: true
 ```
 
-Aliases also accepted:
+## Temporarily skipped workers
 
-- `HERMES_SWARM_BLOCKED_PROFILES`
-- `HERMES_SWARM_PROVIDER_BLOCKED_PROFILES`
+Callers can quarantine workers for one run with:
+
+```bash
+export WORKER_PATTERNS_UNAVAILABLE_WORKERS=worker-review,worker-code-fast
+```
+
+Deprecated compatibility aliases from earlier runtime-specific adapters are still accepted for one migration window, but new integrations should use `WORKER_PATTERNS_*` names.
 
 ## Debug tracing
 
 Tracing is off by default. Enable it explicitly:
 
 ```bash
-HERMES_WORKER_PATTERNS_DEBUG=1 \
-HERMES_WORKER_PATTERNS_LOG="$(mktemp)" \
+WORKER_PATTERNS_DEBUG=1 \
+WORKER_PATTERNS_LOG="$(mktemp)" \
   worker-pattern select "small docs update"
 ```
 

@@ -63,7 +63,7 @@ def test_32_lane_disjoint_swarm_becomes_safe_waves():
     integrators = [lane for lane in plan.lanes if lane.role == "integrator"]
 
     assert plan.selection.selected_pattern == WorkerPattern.MODULE_SWARM
-    assert plan.runtime_mapping.primary_mechanism == ExecutionMechanism.DELEGATE_TASK
+    assert plan.runtime_mapping.primary_mechanism == ExecutionMechanism.EPHEMERAL_WORKERS
     assert plan.module_swarm_scale is not None
     assert plan.module_swarm_scale.requested_lane_count == 32
     assert plan.module_swarm_scale.max_active_lanes == 8

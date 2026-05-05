@@ -14,8 +14,8 @@ def _read_jsonl(path):
 
 def test_dev_tracing_is_disabled_by_default(monkeypatch, tmp_path):
     log_path = tmp_path / "trace.jsonl"
-    monkeypatch.delenv("HERMES_WORKER_PATTERNS_DEBUG", raising=False)
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_LOG", str(log_path))
+    monkeypatch.delenv("WORKER_PATTERNS_DEBUG", raising=False)
+    monkeypatch.setenv("WORKER_PATTERNS_LOG", str(log_path))
 
     assert tracing_enabled() is False
 
@@ -32,8 +32,8 @@ def test_dev_tracing_is_disabled_by_default(monkeypatch, tmp_path):
 
 def test_dev_tracing_writes_bounded_jsonl_selection_event(monkeypatch, tmp_path):
     log_path = tmp_path / "trace.jsonl"
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_DEBUG", "1")
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_LOG", str(log_path))
+    monkeypatch.setenv("WORKER_PATTERNS_DEBUG", "1")
+    monkeypatch.setenv("WORKER_PATTERNS_LOG", str(log_path))
 
     result = worker_pattern_tool(
         {
@@ -67,8 +67,8 @@ def test_dev_tracing_writes_bounded_jsonl_selection_event(monkeypatch, tmp_path)
 
 def test_mcp_bridge_dev_tracing_marks_bridge_interface(monkeypatch, tmp_path):
     log_path = tmp_path / "trace.jsonl"
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_DEBUG", "true")
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_LOG", str(log_path))
+    monkeypatch.setenv("WORKER_PATTERNS_DEBUG", "true")
+    monkeypatch.setenv("WORKER_PATTERNS_LOG", str(log_path))
 
     render_execution_plan_bridge(
         {
@@ -84,13 +84,13 @@ def test_mcp_bridge_dev_tracing_marks_bridge_interface(monkeypatch, tmp_path):
     assert event["status"] == "ok"
     assert event["kind"] == "worker_pattern_execution_plan"
     assert event["dry_run"] is True
-    assert event["primary_mechanism"] == "swarm_profiles"
+    assert event["primary_mechanism"] == "persistent_workers"
 
 
 def test_dev_tracing_logs_errors_without_swallowing_exception(monkeypatch, tmp_path):
     log_path = tmp_path / "trace.jsonl"
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_DEBUG", "1")
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_LOG", str(log_path))
+    monkeypatch.setenv("WORKER_PATTERNS_DEBUG", "1")
+    monkeypatch.setenv("WORKER_PATTERNS_LOG", str(log_path))
 
     with pytest.raises(ValueError, match="output must be one of"):
         worker_pattern_tool({"objective": "Do work", "output": "execute"})
@@ -106,8 +106,8 @@ def test_dev_tracing_logs_errors_without_swallowing_exception(monkeypatch, tmp_p
 
 def test_dev_tracing_redacts_common_secret_tokens(monkeypatch, tmp_path):
     log_path = tmp_path / "trace.jsonl"
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_DEBUG", "1")
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_LOG", str(log_path))
+    monkeypatch.setenv("WORKER_PATTERNS_DEBUG", "1")
+    monkeypatch.setenv("WORKER_PATTERNS_LOG", str(log_path))
 
     worker_pattern_tool(
         {
@@ -124,8 +124,8 @@ def test_dev_tracing_redacts_common_secret_tokens(monkeypatch, tmp_path):
 
 def test_cli_dev_tracing_uses_stderr_or_file_without_polluting_stdout(monkeypatch, tmp_path, capsys):
     log_path = tmp_path / "trace.jsonl"
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_DEBUG", "1")
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_LOG", str(log_path))
+    monkeypatch.setenv("WORKER_PATTERNS_DEBUG", "1")
+    monkeypatch.setenv("WORKER_PATTERNS_LOG", str(log_path))
 
     exit_code = cli_main(
         [
@@ -163,14 +163,14 @@ def test_dev_tracing_handles_raw_plan_dicts():
     fields = plan_trace_fields(result["plan"])
 
     assert fields["selected_pattern"] == "module-swarm"
-    assert fields["primary_mechanism"] == "delegate_task"
+    assert fields["primary_mechanism"] == "ephemeral_workers"
     assert fields["lane_count"] == len(result["plan"]["lanes"])
     assert fields["lane_profiles"]
 
 
 def test_emit_trace_falls_back_to_stderr_when_no_log_file(monkeypatch, capsys):
-    monkeypatch.setenv("HERMES_WORKER_PATTERNS_DEBUG", "1")
-    monkeypatch.delenv("HERMES_WORKER_PATTERNS_LOG", raising=False)
+    monkeypatch.setenv("WORKER_PATTERNS_DEBUG", "1")
+    monkeypatch.delenv("WORKER_PATTERNS_LOG", raising=False)
 
     emit_trace("manual_event", {"value": "ok"})
 

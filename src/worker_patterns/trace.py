@@ -11,8 +11,10 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-DEBUG_ENV = "HERMES_WORKER_PATTERNS_DEBUG"
-LOG_ENV = "HERMES_WORKER_PATTERNS_LOG"
+DEBUG_ENV = "WORKER_PATTERNS_DEBUG"
+LOG_ENV = "WORKER_PATTERNS_LOG"
+DEPRECATED_DEBUG_ENV = "HERMES_WORKER_PATTERNS_DEBUG"
+DEPRECATED_LOG_ENV = "HERMES_WORKER_PATTERNS_LOG"
 _OBJECTIVE_PREVIEW_LIMIT = 120
 _SECRET_PATTERNS = (
     re.compile(r"(?i)\b(password|passwd|pwd|token|api[_-]?key|secret)\s*[:=]\s*\S+"),
@@ -25,7 +27,7 @@ _FALSEY = {"", "0", "false", "no", "off"}
 def tracing_enabled() -> bool:
     """Return whether opt-in worker-pattern development tracing is enabled."""
 
-    value = os.getenv(DEBUG_ENV, "")
+    value = os.getenv(DEBUG_ENV, os.getenv(DEPRECATED_DEBUG_ENV, ""))
     normalized = value.strip().lower()
     if normalized in _TRUTHY:
         return True
@@ -50,7 +52,7 @@ def emit_trace(event: str, fields: Mapping[str, Any]) -> None:
     """Emit a JSONL trace event to the configured sink when tracing is enabled.
 
     Defaults to stderr so MCP stdio protocol stdout is never polluted. If
-    HERMES_WORKER_PATTERNS_LOG is set, the event is appended to that JSONL file.
+    WORKER_PATTERNS_LOG is set, the event is appended to that JSONL file.
     Trace failures are intentionally swallowed because tracing must not change
     router behavior.
     """
@@ -67,7 +69,7 @@ def emit_trace(event: str, fields: Mapping[str, Any]) -> None:
     )
     line = json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n"
     try:
-        log_path = os.getenv(LOG_ENV, "").strip()
+        log_path = os.getenv(LOG_ENV, os.getenv(DEPRECATED_LOG_ENV, "")).strip()
         if log_path:
             path = Path(log_path).expanduser()
             path.parent.mkdir(parents=True, exist_ok=True)

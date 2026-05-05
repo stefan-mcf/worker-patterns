@@ -5,8 +5,8 @@ Worker Patterns has opt-in JSONL tracing for debugging selector behavior.
 ## Enable tracing
 
 ```bash
-HERMES_WORKER_PATTERNS_DEBUG=1 \
-HERMES_WORKER_PATTERNS_LOG="$(mktemp)" \
+WORKER_PATTERNS_DEBUG=1 \
+WORKER_PATTERNS_LOG="$(mktemp)" \
   worker-pattern select "Refactor parser and renderer" --scope parser --scope renderer
 ```
 

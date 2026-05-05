@@ -9,7 +9,7 @@ Use this page only if you want Hermes Agent to consume Worker Patterns plans thr
 1. CLI: call `worker-pattern select` or `worker-pattern render-execution-plan` and paste/use the output as context.
 2. MCP: run `worker-pattern-mcp` as a stdio MCP server and call its tools from a compatible Hermes profile.
 3. Optional skill: install `skills/worker-patterns/SKILL.md` into a Hermes profile if you want Hermes to remember the selector workflow.
-4. Persistent profiles: map lanes to a caller-supplied Hermes swarm roster when you explicitly want named persistent profile execution.
+4. Persistent profiles: map lanes to a caller-supplied worker roster when you explicitly want named persistent profile execution.
 
 ## Boundary
 
@@ -30,16 +30,16 @@ Hermes owns:
 - committing, pushing, publishing, or deploying;
 - judging whether the final work is complete.
 
-## Persistent Hermes roster
+## Persistent worker roster
 
-If a caller wants logical lanes mapped to a concrete Hermes swarm roster, set:
+If a caller wants logical lanes mapped to concrete named workers, set:
 
 ```bash
-export HERMES_SWARM_ROSTER_PATH=/path/to/swarm.yaml
+export WORKER_PATTERNS_ROSTER_PATH=/path/to/workers.yaml
 ```
 
 Without that variable, the selector keeps logical profile hints instead of guessing local profile names.
 
 ## Important stance
 
-Worker Patterns should remain useful outside Hermes. Do not add hidden dependencies on a local Hermes home, profile directory, Telegram bot, Kanban board, or Antaeus checkout. Hermes-specific behavior belongs in this adapter surface or in caller-owned configuration.
+Worker Patterns should remain useful outside any single runtime. Do not add hidden dependencies on a local runtime home, profile directory, bot, task board, or private checkout. Runtime-specific behavior belongs in adapter surfaces or in caller-owned configuration.

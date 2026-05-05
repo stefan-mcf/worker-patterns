@@ -1,6 +1,6 @@
 # Module-Swarm Hardening
 
-`module-swarm` is the large-lane decomposition pattern that came from the Antaeus worker-pattern work, now expressed as a runtime-agnostic contract.
+`module-swarm` is the large-lane decomposition pattern for independent scopes, expressed as a runtime-agnostic contract.
 
 The important distinction is:
 
@@ -46,7 +46,7 @@ The hardened 32-lane cases are covered by tests and fixtures:
   - per-wave integration cadence.
   - low-cost builder profile policy, with risk handled by smaller waves rather than premium-profile escalation.
 
-This keeps the Antaeus-era lesson: broad swarms are safe when they are scoped, batched, integrated, and reviewed. The package should make that shape visible before any runtime starts workers.
+This keeps the core lesson: broad lane fan-out is safe when it is scoped, batched, integrated, and reviewed. The package should make that shape visible before any runtime starts workers.
 
 ## Review boundary
 

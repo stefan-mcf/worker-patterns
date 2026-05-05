@@ -142,7 +142,7 @@ def main() -> None:
     tools/call. The fallback writes only protocol JSON to stdout.
     """
 
-    if os.getenv("HERMES_WORKER_PATTERNS_FORCE_STDIO_FALLBACK") == "1":
+    if os.getenv("WORKER_PATTERNS_FORCE_STDIO_FALLBACK") == "1" or os.getenv("HERMES_WORKER_PATTERNS_FORCE_STDIO_FALLBACK") == "1":
         _run_json_rpc_stdio(sys.stdin, sys.stdout)
         return
 

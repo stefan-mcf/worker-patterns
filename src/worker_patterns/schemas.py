@@ -17,6 +17,12 @@ class WorkerPattern(str, Enum):
 
 class ExecutionMechanism(str, Enum):
     DIRECT = "direct"
+    CONTINUATION = "continuation"
+    EPHEMERAL_WORKERS = "ephemeral_workers"
+    PERSISTENT_WORKERS = "persistent_workers"
+    TASK_GRAPH = "task_graph"
+
+    # Deprecated aliases accepted for one compatibility window.
     GOAL = "goal"
     DELEGATE_TASK = "delegate_task"
     SWARM_PROFILES = "swarm_profiles"
@@ -57,10 +63,10 @@ class PatternLane:
     scope: tuple[str, ...] = ()
     purpose: str = ""
     runtime_hint: str = ""
-    selected_profile: str = ""  # New field
-    fallback_profiles: tuple[str, ...] = ()  # New field
-    toolsets: tuple[str, ...] = ()  # New field
-    model_policy: ModelPolicy = field(default_factory=ModelPolicy)  # New field
+    selected_profile: str = ""
+    fallback_profiles: tuple[str, ...] = ()
+    toolsets: tuple[str, ...] = ()
+    model_policy: ModelPolicy = field(default_factory=ModelPolicy)
 
 
 @dataclass(frozen=True)
@@ -90,13 +96,8 @@ class RuntimeMapping:
 
 @dataclass(frozen=True)
 class ModuleSwarmScalePolicy:
-    """Scale policy for large module-swarm decompositions.
+    """Scale policy for large module-swarm logical decompositions."""
 
-    Preserves high-lane module-swarm testing as safe policy
-    rather than executable concurrency.
-    requested vs. how many should run concurrently, organized into
-    waves with integrator placement.
-    """
     requested_lane_count: int
     max_active_lanes: int
     waves_required: int
@@ -113,13 +114,13 @@ class PatternPlan:
     runtime_mapping: RuntimeMapping
     proof_expectations: tuple[str, ...]
     safety_notes: tuple[str, ...] = ()
-    role_rules: dict[str, Any] = field(default_factory=dict) # New field
-    profile_mapping: dict[str, Any] = field(default_factory=dict) # New field
-    module_swarm_scale: ModuleSwarmScalePolicy | None = None  # New field
+    role_rules: dict[str, Any] = field(default_factory=dict)
+    profile_mapping: dict[str, Any] = field(default_factory=dict)
+    module_swarm_scale: ModuleSwarmScalePolicy | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
-# Backwards-compatible aliases for older integrations.
+# Backwards-compatible alias for older integrations.
 HermesMapping = RuntimeMapping

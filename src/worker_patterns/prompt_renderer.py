@@ -39,13 +39,9 @@ def render_prompt_contract(plan: PatternPlan) -> str:
             f"Mechanism hint: {prompt_bundle['invocation_hint']}",
             "Lanes:",
             *lane_sections,
-            (
-                "Dry-run only: render runtime-compatible prompts/specs, but do not "
-                "launch workers, create Kanban tasks, or mutate runtime settings."
-            ),
+            "Dry-run only: render runtime-compatible prompts/specs, but do not launch workers, create tasks, or mutate runtime settings.",
         ]
     )
-
 
 
 def render_prompt_bundle(plan: PatternPlan) -> dict[str, object]:
@@ -53,9 +49,7 @@ def render_prompt_bundle(plan: PatternPlan) -> dict[str, object]:
         "task_objective": plan.request.objective,
         "selected_pattern": plan.selection.selected_pattern.value,
         "primary_mechanism": plan.runtime_mapping.primary_mechanism.value,
-        "fallback_mechanisms": [
-            mechanism.value for mechanism in plan.runtime_mapping.fallback_mechanisms
-        ],
+        "fallback_mechanisms": [mechanism.value for mechanism in plan.runtime_mapping.fallback_mechanisms],
         "overlays_summary": _overlays_summary(plan),
         "invocation_hint": plan.runtime_mapping.invocation_hint,
         "proof_expectations": list(plan.proof_expectations),
@@ -64,42 +58,40 @@ def render_prompt_bundle(plan: PatternPlan) -> dict[str, object]:
     }
 
 
-
-def render_delegate_specs(plan: PatternPlan) -> dict[str, object]:
+def render_ephemeral_worker_specs(plan: PatternPlan) -> dict[str, object]:
     return {
-        "mechanism": ExecutionMechanism.DELEGATE_TASK.value,
+        "mechanism": ExecutionMechanism.EPHEMERAL_WORKERS.value,
         "dry_run": True,
         "selected_pattern": plan.selection.selected_pattern.value,
-        "tasks": [_render_delegate_task(plan, lane) for lane in plan.lanes],
+        "workers": [_render_ephemeral_worker(plan, lane) for lane in plan.lanes],
+        "tasks": [_render_ephemeral_worker(plan, lane) for lane in plan.lanes],
         "safety_notes": list(plan.safety_notes),
     }
 
 
+# Deprecated compatibility alias.
+def render_delegate_specs(plan: PatternPlan) -> dict[str, object]:
+    return render_ephemeral_worker_specs(plan)
 
-def render_swarm_spec(plan: PatternPlan) -> dict[str, object]:
+
+def render_persistent_worker_spec(plan: PatternPlan) -> dict[str, object]:
     workers = []
     for lane in plan.lanes:
         prompt = _lane_prompt_text(plan, lane)
         workers.append(
             {
                 "role": lane.role,
+                "worker_profile": lane.selected_profile,
                 "profile": lane.selected_profile,
                 "fallback_profiles": list(lane.fallback_profiles),
                 "toolsets": list(lane.toolsets),
                 "prompt": prompt,
-                "command_argv": [
-                    "hermes",
-                    "--profile",
-                    lane.selected_profile,
-                    "chat",
-                    "-Q",
-                    "-q",
-                    prompt,
-                ],
+                "adapter_command": None,
+                "adapter_hint": "Map this logical worker profile to your runtime before execution.",
             }
         )
     return {
-        "mechanism": ExecutionMechanism.SWARM_PROFILES.value,
+        "mechanism": ExecutionMechanism.PERSISTENT_WORKERS.value,
         "dry_run": True,
         "selected_pattern": plan.selection.selected_pattern.value,
         "workers": workers,
@@ -107,8 +99,12 @@ def render_swarm_spec(plan: PatternPlan) -> dict[str, object]:
     }
 
 
+# Deprecated compatibility alias.
+def render_swarm_spec(plan: PatternPlan) -> dict[str, object]:
+    return render_persistent_worker_spec(plan)
 
-def render_kanban_spec(plan: PatternPlan) -> dict[str, object]:
+
+def render_task_graph_spec(plan: PatternPlan) -> dict[str, object]:
     nodes: list[dict[str, object]] = []
     non_reviewer_ids: list[str] = []
     previous_phase_id = ""
@@ -127,7 +123,7 @@ def render_kanban_spec(plan: PatternPlan) -> dict[str, object]:
 
         node = {
             "id": task_id,
-            "title": _kanban_title(lane),
+            "title": _task_title(lane),
             "role": lane.role,
             "scope": list(lane.scope),
             "depends_on": depends_on,
@@ -136,26 +132,24 @@ def render_kanban_spec(plan: PatternPlan) -> dict[str, object]:
             "dry_run": True,
         }
         nodes.append(node)
-
         if lane.role == "phase-worker":
             previous_phase_id = task_id
         if lane.role != "reviewer":
             non_reviewer_ids.append(task_id)
 
     return {
-        "mechanism": ExecutionMechanism.KANBAN.value,
+        "mechanism": ExecutionMechanism.TASK_GRAPH.value,
         "dry_run": True,
         "selected_pattern": plan.selection.selected_pattern.value,
         "tasks": nodes,
         "safety_notes": list(plan.safety_notes)
-        + [
-            (
-                "Inspect dependencies before creating Kanban tasks; this renderer "
-                "only emits a dry-run task graph."
-            )
-        ],
+        + ["Inspect dependencies before creating tasks; this renderer only emits a dry-run task graph."],
     }
 
+
+# Deprecated compatibility alias.
+def render_kanban_spec(plan: PatternPlan) -> dict[str, object]:
+    return render_task_graph_spec(plan)
 
 
 def _render_lane_prompt(plan: PatternPlan, lane: PatternLane) -> dict[str, object]:
@@ -175,11 +169,10 @@ def _render_lane_prompt(plan: PatternPlan, lane: PatternLane) -> dict[str, objec
     }
 
 
-
-def _render_delegate_task(plan: PatternPlan, lane: PatternLane) -> dict[str, object]:
+def _render_ephemeral_worker(plan: PatternPlan, lane: PatternLane) -> dict[str, object]:
     return {
-        "goal": _delegate_goal(plan, lane),
-        "context": _delegate_context(plan, lane),
+        "goal": _ephemeral_worker_goal(plan, lane),
+        "context": _ephemeral_worker_context(plan, lane),
         "toolsets": list(lane.toolsets),
         "role": lane.role,
         "selected_profile": lane.selected_profile,
@@ -187,8 +180,7 @@ def _render_delegate_task(plan: PatternPlan, lane: PatternLane) -> dict[str, obj
     }
 
 
-
-def _delegate_goal(plan: PatternPlan, lane: PatternLane) -> str:
+def _ephemeral_worker_goal(plan: PatternPlan, lane: PatternLane) -> str:
     return (
         f"Act as the {lane.role} lane for objective: {plan.request.objective}. "
         f"Selected worker pattern: {plan.selection.selected_pattern.value}. "
@@ -196,24 +188,19 @@ def _delegate_goal(plan: PatternPlan, lane: PatternLane) -> str:
     )
 
 
-
-def _delegate_context(plan: PatternPlan, lane: PatternLane) -> str:
+def _ephemeral_worker_context(plan: PatternPlan, lane: PatternLane) -> str:
     proof_lines = "; ".join(_lane_proof_expectations(plan, lane))
     return (
         f"Scope: {_scope_summary(plan, lane)}. "
         f"Allowed edits: {_allowed_edits(plan, lane)}. "
         f"Purpose: {lane.purpose}. "
         f"Proof expectations: {proof_lines}. "
-        "Dry-run adapter contract only; do not launch external workers or mutate "
-        "runtime configuration."
+        "Dry-run adapter contract only; do not launch external workers or mutate runtime configuration."
     )
-
 
 
 def _lane_prompt_text(plan: PatternPlan, lane: PatternLane) -> str:
-    proof_lines = "\n".join(
-        f"- {item}" for item in _lane_proof_expectations(plan, lane)
-    )
+    proof_lines = "\n".join(f"- {item}" for item in _lane_proof_expectations(plan, lane))
     return (
         f"Role: {lane.role}\n"
         f"Task objective: {plan.request.objective}\n"
@@ -223,10 +210,8 @@ def _lane_prompt_text(plan: PatternPlan, lane: PatternLane) -> str:
         f"Allowed edits: {_allowed_edits(plan, lane)}\n"
         f"Expected output: {_expected_output(lane)}\n"
         f"Proof expectations:\n{proof_lines}\n"
-        "Dry-run only. Stay within assigned scope and do not create separate "
-        "runtime machinery."
+        "Dry-run only. Stay within assigned scope and do not create separate runtime machinery."
     )
-
 
 
 def _lane_proof_expectations(plan: PatternPlan, lane: PatternLane) -> tuple[str, ...]:
@@ -240,14 +225,12 @@ def _lane_proof_expectations(plan: PatternPlan, lane: PatternLane) -> tuple[str,
     return tuple(dict.fromkeys([*plan.proof_expectations, *lane_specific]))
 
 
-
 def _scope_summary(plan: PatternPlan, lane: PatternLane) -> str:
     if lane.scope:
         return ", ".join(lane.scope)
     if plan.request.scopes:
         return ", ".join(plan.request.scopes)
     return "bounded task scope only"
-
 
 
 def _allowed_edits(plan: PatternPlan, lane: PatternLane) -> str:
@@ -258,16 +241,13 @@ def _allowed_edits(plan: PatternPlan, lane: PatternLane) -> str:
     return "Only files directly required to complete the stated objective"
 
 
-
 def _expected_output(lane: PatternLane) -> str:
     return ROLE_OUTPUTS.get(lane.role, "task summary and proof artifacts")
 
 
-
-def _kanban_title(lane: PatternLane) -> str:
+def _task_title(lane: PatternLane) -> str:
     scope = ", ".join(lane.scope) if lane.scope else lane.role
     return f"{lane.role}: {scope}"
-
 
 
 def _overlays_summary(plan: PatternPlan) -> str:

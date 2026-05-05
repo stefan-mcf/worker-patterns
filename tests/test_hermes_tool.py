@@ -19,8 +19,9 @@ def test_worker_pattern_tool_accepts_json_string_and_returns_execution_plan():
     assert result["dry_run"] is True
     assert result["kind"] == "worker_pattern_execution_plan"
     assert result["plan"]["selection"]["selected_pattern"] == "module-swarm"
-    assert result["execution_plan"]["mechanism"] == "delegate_task"
-    assert result["execution_plan"]["delegate_tasks"]
+    assert result["execution_plan"]["mechanism"] == "ephemeral_workers"
+    assert result["execution_plan"]["ephemeral_worker_tasks"]
+    assert result["execution_plan"]["delegate_tasks"] == result["execution_plan"]["ephemeral_worker_tasks"]
 
 
 def test_worker_pattern_tool_accepts_dict_aliases_for_swarm_output():
@@ -29,15 +30,16 @@ def test_worker_pattern_tool_accepts_dict_aliases_for_swarm_output():
             "objective": "Maintain persistent router and review lanes",
             "scope": "router",
             "persistent_workers": True,
-            "output": "swarm",
+            "output": "persistent_workers",
         }
     )
 
     assert result["dry_run"] is True
-    assert result["kind"] == "worker_pattern_swarm_spec"
-    assert result["swarm"]["dry_run"] is True
-    assert result["swarm"]["workers"]
-    assert result["swarm"]["workers"][0]["command_argv"][:2] == ["hermes", "--profile"]
+    assert result["kind"] == "worker_pattern_persistent_worker_spec"
+    assert result["persistent_workers"]["dry_run"] is True
+    assert result["persistent_workers"]["workers"]
+    assert result["persistent_workers"]["workers"][0]["adapter_command"] is None
+    assert "Map this logical worker profile" in result["persistent_workers"]["workers"][0]["adapter_hint"]
 
 
 def test_worker_pattern_tool_json_returns_json_text():
@@ -46,15 +48,27 @@ def test_worker_pattern_tool_json_returns_json_text():
             "objective": "Ship phased migration",
             "dependency": ["schema", "api", "cutover"],
             "durable": True,
-            "output": "kanban",
+            "output": "task_graph",
         }
     )
 
     result = json.loads(text)
 
-    assert result["kind"] == "worker_pattern_kanban_spec"
-    assert result["kanban"]["dry_run"] is True
-    assert result["kanban"]["tasks"][1]["depends_on"] == ["lane-1-phase-worker"]
+    assert result["kind"] == "worker_pattern_task_graph_spec"
+    assert result["task_graph"]["dry_run"] is True
+    assert result["task_graph"]["tasks"][1]["depends_on"] == ["lane-1-phase-worker"]
+
+
+def test_worker_pattern_tool_accepts_legacy_output_aliases():
+    delegate = worker_pattern_tool({"objective": "Refactor two modules", "scope": ["a", "b"], "output": "delegate"})
+    assert delegate["delegate"] == delegate["ephemeral_workers"]
+
+    swarm = worker_pattern_tool({"objective": "Use persistent review lane", "persistent_workers": True, "output": "swarm"})
+    assert swarm["swarm"] == swarm["persistent_workers"]
+
+    kanban = worker_pattern_tool({"objective": "Ship ordered migration", "dependency": ["a", "b", "c"], "output": "kanban"})
+    assert kanban["kanban"] == kanban["task_graph"]
+
 
 
 def test_worker_pattern_tool_rejects_invalid_output():

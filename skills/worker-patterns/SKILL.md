@@ -48,19 +48,19 @@ PYTHONPATH=src python -m worker_patterns.cli select "<objective>" --scope "<scop
 
 ## Persistent profiles
 
-If the caller wants concrete persistent profile mapping, provide a roster file, set the compatible roster variable, and pass the explicit persistent-worker flag:
+If the caller wants concrete named-worker mapping, provide a roster file, set the compatible roster variable, and pass the explicit persistent-worker flag:
 
 ```bash
-export HERMES_SWARM_ROSTER_PATH=/path/to/swarm.yaml
+export WORKER_PATTERNS_ROSTER_PATH=/path/to/workers.yaml
 worker-pattern select "<objective>" --scope backend --scope frontend --persistent-workers --tests-required --text
 ```
 
-Pitfall: mentioning persistent workers in the objective text is not enough. Without `--persistent-workers`, the selector intentionally emits portable logical aliases such as `worker-code-fast`; with `--persistent-workers` plus `HERMES_SWARM_ROSTER_PATH`, it maps lanes onto concrete runtime profiles from the supplied roster.
+Pitfall: mentioning persistent workers in the objective text is not enough. Without `--persistent-workers`, the selector intentionally emits portable logical aliases such as `worker-code-fast`; with `--persistent-workers` plus `WORKER_PATTERNS_ROSTER_PATH`, it maps lanes onto caller-owned worker identities from the supplied roster.
 
 Smoke-test local persistent mapping with a harmless dry-run before claiming setup is complete:
 
 ```bash
-HERMES_SWARM_ROSTER_PATH=/path/to/swarm.yaml \
+WORKER_PATTERNS_ROSTER_PATH=/path/to/workers.yaml \
   worker-pattern select "implement backend frontend docs review in parallel" \
   --scope backend --scope frontend --scope docs --scope review \
   --persistent-workers --tests-required --text
@@ -82,7 +82,7 @@ Observed hardening fix: persistent profiles can have isolated skill stores. A sk
 Then verify exact profile+skill loading before assigning work:
 
 ```bash
-hermes --profile <profile> --skills worker-patterns chat -Q --max-turns 2 -q 'Reply exactly: WORKER_SKILL_OK'
+<runtime-cli> --profile <profile> --skills worker-patterns --prompt 'Reply exactly: WORKER_SKILL_OK'
 ```
 
 If the marker does not appear with exit code 0, do not launch that lane with those skills. Either fix the profile-local skill store or remove `--skills` and put the required procedure directly in the worker prompt.

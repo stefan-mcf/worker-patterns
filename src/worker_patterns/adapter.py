@@ -12,50 +12,66 @@ from .schemas import (
 )
 
 
-def adapt_to_runtime(request: PatternRequest, selection: PatternSelection, lanes: tuple[PatternLane, ...]) -> RuntimeMapping:
-    """Map a selected worker pattern to a runtime-neutral execution mechanism.
+def adapt_to_runtime(
+    request: PatternRequest,
+    selection: PatternSelection,
+    lanes: tuple[PatternLane, ...],
+) -> RuntimeMapping:
+    """Map a selected worker pattern to a runtime-neutral mechanism.
 
-    This function deliberately returns instructions only. It does not launch workers,
-    create durable tasks, or mutate runtime configuration.
+    This function returns inspectable planning instructions only. It never
+    launches workers, creates durable tasks, or mutates runtime configuration.
     """
+
     base = selection.selected_pattern
     lane_count = sum(max(lane.count, 1) for lane in lanes)
 
     if request.durable or len(request.dependencies) > 2:
-        primary = ExecutionMechanism.KANBAN
-        fallback = (ExecutionMechanism.GOAL, ExecutionMechanism.SWARM_PROFILES, ExecutionMechanism.DELEGATE_TASK)
-        hint = "Use a durable task graph for dependency/wave tracking; assign lanes to an external runtime or profile pool for execution."
+        primary = ExecutionMechanism.TASK_GRAPH
+        fallback = (
+            ExecutionMechanism.CONTINUATION,
+            ExecutionMechanism.PERSISTENT_WORKERS,
+            ExecutionMechanism.EPHEMERAL_WORKERS,
+        )
+        hint = (
+            "Use a dry-run task graph for dependency/wave tracking; map lanes "
+            "to an external runtime only after review."
+        )
     elif request.persistent_workers:
-        primary = ExecutionMechanism.SWARM_PROFILES
-        fallback = (ExecutionMechanism.DELEGATE_TASK, ExecutionMechanism.GOAL)
-        hint = "Use named runtime profiles for role/model-specific lanes, then integrate in the parent session."
+        primary = ExecutionMechanism.PERSISTENT_WORKERS
+        fallback = (ExecutionMechanism.EPHEMERAL_WORKERS, ExecutionMechanism.CONTINUATION)
+        hint = (
+            "Use named workers for role/tool-specific lanes, then integrate "
+            "the outputs in the parent session."
+        )
     elif base in {WorkerPattern.MODULE_SWARM, WorkerPattern.BLUEPRINT_FANOUT} or lane_count > 2:
-        primary = ExecutionMechanism.DELEGATE_TASK
-        fallback = (ExecutionMechanism.SWARM_PROFILES, ExecutionMechanism.GOAL)
-        hint = "Use delegate_task batch for bounded parallel lanes; preserve scope and role in each subagent context."
+        primary = ExecutionMechanism.EPHEMERAL_WORKERS
+        fallback = (ExecutionMechanism.PERSISTENT_WORKERS, ExecutionMechanism.CONTINUATION)
+        hint = (
+            "Use ephemeral worker lanes for bounded parallel subtasks; preserve "
+            "scope and role in each worker context."
+        )
     elif base == WorkerPattern.PHASED_ASSEMBLY:
-        primary = ExecutionMechanism.GOAL
-        fallback = (ExecutionMechanism.KANBAN, ExecutionMechanism.DELEGATE_TASK)
-        hint = "Use /goal for cross-turn wave execution; promote to Kanban if it needs durable task tracking."
+        primary = ExecutionMechanism.CONTINUATION
+        fallback = (ExecutionMechanism.TASK_GRAPH, ExecutionMechanism.EPHEMERAL_WORKERS)
+        hint = (
+            "Use a managed continuation for cross-turn waves; promote to a task "
+            "graph if durable dependency tracking is required."
+        )
     elif base in {WorkerPattern.RECOVERY_LANE, WorkerPattern.BRIDGE_LANE}:
         primary = ExecutionMechanism.DIRECT
-        fallback = (ExecutionMechanism.GOAL, ExecutionMechanism.SWARM_PROFILES)
-        hint = "Use one narrow recovery lane; avoid parallel edits until the failure state is understood."
+        fallback = (ExecutionMechanism.CONTINUATION, ExecutionMechanism.PERSISTENT_WORKERS)
+        hint = "Use one narrow recovery lane; avoid parallel edits until failure state is understood."
     else:
         primary = ExecutionMechanism.DIRECT
-        fallback = (ExecutionMechanism.GOAL, ExecutionMechanism.DELEGATE_TASK)
-        hint = "Handle directly in the current runtime turn unless the task starts spanning multiple turns."
+        fallback = (ExecutionMechanism.CONTINUATION, ExecutionMechanism.EPHEMERAL_WORKERS)
+        hint = "Handle directly in the current runtime turn unless the task spans multiple turns."
 
     contract = _prompt_contract(request, selection, lanes, primary, hint)
     return RuntimeMapping(primary, fallback, hint, contract)
 
 
 def dry_run_execution_plan(plan: PatternPlan) -> RuntimeExecutionPlan:
-    """Render an inspectable dry-run execution plan for an adapted plan.
-
-    This adapter entrypoint intentionally delegates to the renderer without
-    launching workers, creating durable tasks, or mutating runtime configuration.
-    """
     return render_execution_plan(plan)
 
 

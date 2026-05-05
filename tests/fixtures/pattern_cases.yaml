@@ -13,7 +13,7 @@ cases:
       tests_required: true
     expected_pattern: module-swarm
     expected_overlays: [twin-inspection]
-    expected_mechanism: delegate_task
+    expected_mechanism: ephemeral_workers
   - name: phased_assembly_base
     request:
       objective: Migrate the app in ordered waves
@@ -21,14 +21,14 @@ cases:
       durable: true
     expected_pattern: phased-assembly
     expected_overlays: [twin-inspection]
-    expected_mechanism: kanban
+    expected_mechanism: task_graph
   - name: blueprint_fanout_base
     request:
       objective: Compare alternative dashboard designs
       variants_requested: 3
     expected_pattern: blueprint-fanout
     expected_overlays: [twin-inspection]
-    expected_mechanism: delegate_task
+    expected_mechanism: ephemeral_workers
   - name: recovery_lane_base
     request:
       objective: Recover blocked stale worker output after failed repair

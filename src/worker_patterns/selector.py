@@ -178,7 +178,6 @@ def _is_code_heavy_request(request: PatternRequest, base: WorkerPattern) -> bool
         for token in (
             "code-heavy",
             "premium_code",
-            "spark",
             "code heavy",
             "implementation-heavy",
         )
@@ -281,7 +280,7 @@ def _lanes_for(
                 count=scale.waves_required if scale.integrator_per_wave else 1,
                 scope=scopes,
                 purpose=f"merge/check lane outputs {cadence}",
-                runtime_hint="current-session lane or goal-style continuation",
+                runtime_hint="current-session lane or managed continuation",
                 selected_profile=integrator_profile_lane.selected_profile,
                 fallback_profiles=integrator_profile_lane.fallback_profiles,
                 toolsets=integrator_profile_lane.toolsets,
@@ -303,7 +302,7 @@ def _lanes_for(
                     count=1,
                     scope=(),
                     purpose=f"produce alternative {i + 1}",
-                    runtime_hint="delegate_task batch",
+                    runtime_hint="ephemeral worker batch",
                     selected_profile=designer_profile_lane.selected_profile,
                     fallback_profiles=designer_profile_lane.fallback_profiles,
                     toolsets=designer_profile_lane.toolsets,
@@ -344,7 +343,7 @@ def _lanes_for(
                     count=1,
                     scope=(dep,),
                     purpose="complete dependency wave item",
-                    runtime_hint="Kanban child task or /goal step",
+                    runtime_hint="task graph child task or managed continuation",
                     selected_profile=phase_worker_profile_lane.selected_profile,
                     fallback_profiles=phase_worker_profile_lane.fallback_profiles,
                     toolsets=phase_worker_profile_lane.toolsets,
@@ -384,7 +383,7 @@ def _lanes_for(
                 count=1,
                 scope=request.scopes,
                 purpose="single bounded implementation lane",
-                runtime_hint="direct runtime turn or goal-style continuation",
+                runtime_hint="direct runtime turn or managed continuation",
                 selected_profile=builder_profile_lane.selected_profile,
                 fallback_profiles=builder_profile_lane.fallback_profiles,
                 toolsets=builder_profile_lane.toolsets,
@@ -405,7 +404,7 @@ def _lanes_for(
                 count=1,
                 scope=request.scopes,
                 purpose="independent review/test verification",
-                runtime_hint="delegate_task reviewer or swarm review profile",
+                runtime_hint="ephemeral reviewer or independent review worker",
                 selected_profile=reviewer_profile_lane.selected_profile,
                 fallback_profiles=reviewer_profile_lane.fallback_profiles,
                 toolsets=reviewer_profile_lane.toolsets,
@@ -469,7 +468,7 @@ def select_worker_pattern(request: PatternRequest) -> PatternPlan:
     lanes = _lanes_for(request, base, tuple(overlays), profile_policy, dimensions=dimensions)
     swarm_roster_notes: tuple[str, ...] = ()
     if request.persistent_workers:
-        lanes, swarm_roster_notes = profile_policy.apply_canonical_swarm_roster(lanes)
+        lanes, swarm_roster_notes = profile_policy.apply_worker_roster(lanes)
 
     module_swarm_scale = None
     if base == WorkerPattern.MODULE_SWARM:

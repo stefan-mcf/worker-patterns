@@ -15,7 +15,7 @@ cases:
       scopes: ["auth", "billing"]
       notes: ["disjoint scopes"]
     expected_pattern: module-swarm
-    expected_mechanism: delegate_task
+    expected_mechanism: ephemeral_workers
     review_required: true
     lane_roles: ["builder", "builder", "integrator", "reviewer"]
     module_swarm_execution_roles: ["builder", "integrator", "reviewer"]
@@ -30,7 +30,7 @@ cases:
       dependencies: ["schema", "code", "cutover"]
       risk_level: high
     expected_pattern: phased-assembly
-    expected_mechanism: kanban
+    expected_mechanism: task_graph
     review_required: true
     lane_roles: ["phase-worker", "phase-worker", "phase-worker", "reviewer"]
     safety_contains: "Safety-sensitive"

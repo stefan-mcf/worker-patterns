@@ -38,8 +38,9 @@ def test_render_execution_plan_bridge_forces_dry_run_execution_plan():
     assert result["dry_run"] is True
     assert result["kind"] == "worker_pattern_execution_plan"
     assert result["execution_plan"]["dry_run"] is True
-    assert result["execution_plan"]["mechanism"] == "swarm_profiles"
-    assert result["execution_plan"]["commands"]
+    assert result["execution_plan"]["mechanism"] == "persistent_workers"
+    assert result["execution_plan"]["commands"] == []
+    assert result["execution_plan"]["worker_specs"]
 
 
 def test_mcp_bridge_rejects_non_object_json():

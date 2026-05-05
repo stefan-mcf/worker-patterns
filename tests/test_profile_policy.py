@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from worker_patterns.profile_policy import WorkerProfilesPolicy
+from worker_patterns.profile_policy import WorkerProfilesPolicy, validate_roster_file
 from worker_patterns.schemas import PatternLane
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -166,7 +166,7 @@ workers:
     acceptsBroadcast: true
 """
     )
-    monkeypatch.setenv("HERMES_SWARM_ROSTER_PATH", str(roster_path))
+    monkeypatch.setenv("WORKER_PATTERNS_ROSTER_PATH", str(roster_path))
     policy = WorkerProfilesPolicy.load_from_yaml(policy_path)
 
     mapped, notes = policy.apply_canonical_swarm_roster(
@@ -178,7 +178,7 @@ workers:
 
     assert [lane.selected_profile for lane in mapped] == ["swarm5", "swarm6"]
     assert "swarm1" not in [lane.selected_profile for lane in mapped]
-    assert any("swarm.yaml remains worker identity" in note for note in notes)
+    assert any("roster remains worker identity" in note for note in notes)
 
 
 def test_persistent_swarm_roster_skips_temporarily_unhealthy_profiles(policy_path, tmp_path, monkeypatch):
@@ -198,8 +198,8 @@ workers:
     acceptsBroadcast: true
 """
     )
-    monkeypatch.setenv("HERMES_SWARM_ROSTER_PATH", str(roster_path))
-    monkeypatch.setenv("HERMES_SWARM_UNHEALTHY_PROFILES", "swarm6")
+    monkeypatch.setenv("WORKER_PATTERNS_ROSTER_PATH", str(roster_path))
+    monkeypatch.setenv("WORKER_PATTERNS_UNAVAILABLE_WORKERS", "swarm6")
     policy = WorkerProfilesPolicy.load_from_yaml(policy_path)
 
     mapped, notes = policy.apply_canonical_swarm_roster(
@@ -207,7 +207,7 @@ workers:
     )
 
     assert mapped[0].selected_profile == "swarm11"
-    assert any("Skipped temporarily unhealthy swarm profiles: swarm6" in note for note in notes)
+    assert any("Skipped temporarily unavailable workers: swarm6" in note for note in notes)
 
 
 def test_persistent_swarm_roster_skips_provider_blocked_profile_alias(policy_path, tmp_path, monkeypatch):
@@ -227,8 +227,8 @@ workers:
     acceptsBroadcast: true
 """
     )
-    monkeypatch.setenv("HERMES_SWARM_ROSTER_PATH", str(roster_path))
-    monkeypatch.setenv("HERMES_SWARM_PROVIDER_BLOCKED_PROFILES", "swarm5")
+    monkeypatch.setenv("WORKER_PATTERNS_ROSTER_PATH", str(roster_path))
+    monkeypatch.setenv("WORKER_PATTERNS_UNAVAILABLE_WORKERS", "swarm5")
     policy = WorkerProfilesPolicy.load_from_yaml(policy_path)
 
     mapped, notes = policy.apply_canonical_swarm_roster(
@@ -236,7 +236,29 @@ workers:
     )
 
     assert mapped[0].selected_profile == "swarm10"
-    assert any("Skipped temporarily unhealthy swarm profiles: swarm5" in note for note in notes)
+    assert any("Skipped temporarily unavailable workers: swarm5" in note for note in notes)
+
+
+def test_top_level_list_roster_validates_and_maps_lanes(policy_path, tmp_path, monkeypatch):
+    roster_path = tmp_path / "workers.yaml"
+    roster_path.write_text(
+        """
+- id: worker-a
+  name: Builder
+  role: Primary Builder
+  preferredTaskTypes: [implementation]
+  acceptsBroadcast: true
+"""
+    )
+    monkeypatch.setenv("WORKER_PATTERNS_ROSTER_PATH", str(roster_path))
+    policy = WorkerProfilesPolicy.load_from_yaml(policy_path)
+
+    validation = validate_roster_file(roster_path)
+    mapped, _notes = policy.apply_worker_roster((PatternLane(role="builder", selected_profile="worker-code-fast"),))
+
+    assert validation.ok is True
+    assert mapped[0].selected_profile == "worker-a"
+
 
 
 def test_live_policy_uses_public_profile_names_only():

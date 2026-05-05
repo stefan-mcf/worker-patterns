@@ -52,7 +52,7 @@ cases:
     expected_pattern: module-swarm
     expected_overlays:
       - twin-inspection
-    expected_mechanism: delegate_task
+    expected_mechanism: ephemeral_workers
     expected_profile: worker-code-fast
     forbidden_profiles: [worker-code-premium, worker-general-premium, worker-review-premium, default]
     expected_disable_reasoning: true
@@ -112,7 +112,7 @@ cases:
     expected_pattern: module-swarm
     expected_overlays:
       - twin-inspection
-    expected_mechanism: delegate_task
+    expected_mechanism: ephemeral_workers
     expected_profile: worker-code-fast
     forbidden_profiles: [worker-code-premium, worker-general-premium, worker-review-premium, default]
     expected_disable_reasoning: true

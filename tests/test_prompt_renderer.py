@@ -23,7 +23,7 @@ def test_render_prompt_bundle_contains_role_scope_and_proof():
     rendered = render_prompt_bundle(plan)
 
     assert rendered["selected_pattern"] == "module-swarm"
-    assert rendered["primary_mechanism"] == "delegate_task"
+    assert rendered["primary_mechanism"] == "ephemeral_workers"
     assert rendered["proof_expectations"]
     assert all(lane["role"] for lane in rendered["lanes"])
     assert all(lane["scope_summary"] for lane in rendered["lanes"])
@@ -63,7 +63,7 @@ def test_render_delegate_specs_are_json_safe():
     rendered = render_delegate_specs(plan)
     payload = json.dumps(rendered, sort_keys=True)
 
-    assert '"mechanism": "delegate_task"' in payload
+    assert '"mechanism": "ephemeral_workers"' in payload
     assert all(task["goal"] for task in rendered["tasks"])
     assert all(task["context"] for task in rendered["tasks"])
 
@@ -80,12 +80,13 @@ def test_render_swarm_spec_is_dry_run_and_structured_first():
 
     rendered = render_swarm_spec(plan)
 
-    assert rendered["mechanism"] == "swarm_profiles"
+    assert rendered["mechanism"] == "persistent_workers"
     assert rendered["dry_run"] is True
     assert rendered["workers"]
     assert all(worker["profile"] for worker in rendered["workers"])
-    assert all(worker["command_argv"][:3] == ["hermes", "--profile", worker["profile"]] for worker in rendered["workers"])
-
+    assert all(worker["adapter_command"] is None for worker in rendered["workers"])
+    assert all("Map this logical worker profile" in worker["adapter_hint"] for worker in rendered["workers"])
+    assert all("Dry-run only" in worker["prompt"] for worker in rendered["workers"])
 
 
 def test_render_kanban_spec_builds_dependency_graph_for_durable_work():
@@ -99,7 +100,7 @@ def test_render_kanban_spec_builds_dependency_graph_for_durable_work():
 
     rendered = render_kanban_spec(plan)
 
-    assert rendered["mechanism"] == "kanban"
+    assert rendered["mechanism"] == "task_graph"
     assert rendered["dry_run"] is True
     assert [task["id"] for task in rendered["tasks"][:3]] == [
         "lane-1-phase-worker",

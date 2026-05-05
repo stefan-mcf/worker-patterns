@@ -50,7 +50,7 @@
       },
       "purpose": "merge/check lane outputs after all waves",
       "role": "integrator",
-      "runtime_hint": "current-session lane or goal-style continuation",
+      "runtime_hint": "current-session lane or managed continuation",
       "scope": [
         "auth",
         "billing"
@@ -74,7 +74,7 @@
       },
       "purpose": "independent review/test verification",
       "role": "reviewer",
-      "runtime_hint": "delegate_task reviewer or swarm review profile",
+      "runtime_hint": "ephemeral reviewer or independent review worker",
       "scope": [
         "auth",
         "billing"
@@ -112,6 +112,7 @@
     "focused tests run after merge",
     "independent reviewer/tester checks evidence",
     "final answer includes review verdict",
+    "test command/output or explicit reason tests were not run",
     "final summary names touched scopes: auth, billing"
   ],
   "request": {
@@ -128,7 +129,7 @@
       "auth",
       "billing"
     ],
-    "tests_required": false,
+    "tests_required": true,
     "variants_requested": 0
   },
   "role_rules": {
@@ -239,12 +240,12 @@
   },
   "runtime_mapping": {
     "fallback_mechanisms": [
-      "swarm_profiles",
-      "goal"
+      "persistent_workers",
+      "continuation"
     ],
-    "invocation_hint": "Use delegate_task batch for bounded parallel lanes; preserve scope and role in each subagent context.",
-    "primary_mechanism": "delegate_task",
-    "prompt_contract": "Task objective: Refactor auth and billing modules, then run tests\nSelected worker pattern: module-swarm\nPrimary mechanism: delegate_task\nOverlays: twin-inspection\nMechanism hint: Use delegate_task batch for bounded parallel lanes; preserve scope and role in each subagent context.\nLanes:\nRole: builder\nScope: auth\nPurpose: parallel scoped implementation lane; execute in safe waves, not all at once\nAllowed edits: only files required for auth\nExpected output: concise lane summary plus proof artifacts\nRole: builder\nScope: billing\nPurpose: parallel scoped implementation lane; execute in safe waves, not all at once\nAllowed edits: only files required for billing\nExpected output: concise lane summary plus proof artifacts\nRole: integrator\nScope: auth, billing\nPurpose: merge/check lane outputs after all waves\nAllowed edits: only files required for auth, billing\nExpected output: concise lane summary plus proof artifacts\nRole: reviewer\nScope: auth, billing\nPurpose: independent review/test verification\nAllowed edits: only files required for auth, billing\nExpected output: concise lane summary plus proof artifacts\nDry-run only. Render runtime-compatible prompts/specs but do not launch workers or mutate runtime settings."
+    "invocation_hint": "Use ephemeral worker lanes for bounded parallel subtasks; preserve scope and role in each worker context.",
+    "primary_mechanism": "ephemeral_workers",
+    "prompt_contract": "Task objective: Refactor auth and billing modules, then run tests\nSelected worker pattern: module-swarm\nPrimary mechanism: ephemeral_workers\nOverlays: twin-inspection\nMechanism hint: Use ephemeral worker lanes for bounded parallel subtasks; preserve scope and role in each worker context.\nLanes:\nRole: builder\nScope: auth\nPurpose: parallel scoped implementation lane; execute in safe waves, not all at once\nAllowed edits: only files required for auth\nExpected output: concise lane summary plus proof artifacts\nRole: builder\nScope: billing\nPurpose: parallel scoped implementation lane; execute in safe waves, not all at once\nAllowed edits: only files required for billing\nExpected output: concise lane summary plus proof artifacts\nRole: integrator\nScope: auth, billing\nPurpose: merge/check lane outputs after all waves\nAllowed edits: only files required for auth, billing\nExpected output: concise lane summary plus proof artifacts\nRole: reviewer\nScope: auth, billing\nPurpose: independent review/test verification\nAllowed edits: only files required for auth, billing\nExpected output: concise lane summary plus proof artifacts\nDry-run only. Render runtime-compatible prompts/specs but do not launch workers or mutate runtime settings."
   },
   "safety_notes": [
     "Runtimes execute; this package only selects/adapts worker patterns."
