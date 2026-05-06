@@ -1,10 +1,10 @@
 # Elastic Worker Lanes
 
-This document records a future design direction. It is not implemented execution behavior.
+This document records an extension design direction. It is not implemented execution behavior.
 
 ## Problem
 
-Named persistent profiles are useful for long-running work, but a named profile is a live identity, not the entire capacity model. A future launcher may need multiple isolated lane instances from the same profile class while respecting provider and concurrency limits.
+Named persistent profiles are useful for long-running work, but a named profile is a live identity, not the entire capacity model. An approved launcher may need multiple isolated lane instances from the same profile class while respecting provider and concurrency limits.
 
 ## Concept
 
